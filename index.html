@@ -95,7 +95,7 @@ function ed(){const c=cur;LK=keys(c);
 <label class="l">名稱</label><div class="cd"><input value="${esc(c.name)}" oninput="cur.name=this.value"></div>
 <label class="l">照片（可多張，也可直接貼上）</label><div class="cd"><div class="th">${c.images.map((x,k)=>`<div><img src="${url(x)}" onclick="big(${k})"><i onclick="c_rm(${k})">×</i></div>`).join("")}<label class="add">＋ 選圖<input type="file" accept="image/*" multiple hidden onchange="addFiles(this.files)"></label></div><div id="pz" class="pz" contenteditable="true" data-ph="點這裡 → 再點一次選「貼上」" oninput="pzIn(this)"></div></div>
 <label class="l">狀態<a class="mgl" onclick="mgOpen()">管理</a></label><div class="cd chips">${STATUS.map((s,k)=>`<span class="c ${c.status===s?"on":""}" onclick="cur.status=STATUS[${k}];ed()">${esc(s)}</span>`).join("")}</div>
-<label class="l">開團者<a class="mgl" onclick="mgOpen()">管理</a></label><div class="cd chips">${getHosts().map((h,k)=>`<span class="c ${c.host===h?"on":""}" onclick="pickHost(${k})">${esc(h)}</span>`).join("")}<span class="c" onclick="$('#nh').style.display='block';$('#nhi').focus()">＋ 自訂</span><div id="nh" style="display:none;width:100%"><input id="nhi" placeholder="新開團者，按 Enter" onkeydown="if(event.key==='Enter'&&this.value.trim()){cur.host=this.value.trim();ed()}"></div></div>
+<label class="l">開團者<a class="mgl" onclick="mgOpen()">管理</a></label><div class="cd chips">${getHosts().map((h,k)=>`<span class="c ${c.host===h?"on":""}" onclick="pickHost(${k})">${esc(h)}</span>`).join("")}<span class="c" onclick="$('#nh').style.display='block';$('#nhi').focus()">＋ 自訂</span><div id="nh" style="display:none;width:100%"><input id="nhi" placeholder="新開團者，按 Enter" onkeydown="if(event.key==='Enter'){addCustomHost(this.value)}"></div></div>
 <label class="l">商品類型（可多選）<a class="mgl" onclick="mgOpen()">管理</a></label><div class="cd chips">${[...new Set([...getTypes(),...c.types])].map(t=>`<span class="c ${c.types.includes(t)?"on":""}" onclick="tg('${esc(t)}')">${esc(t)}</span>`).join("")}<span class="c" onclick="nt()">＋ 自訂</span><div id="nt" style="display:none;width:100%;display:none"><input id="nti" placeholder="新類型名稱，按 Enter" onkeydown="if(event.key==='Enter')nt2()"></div></div>
 <label class="l">金額<a class="mgl" onclick="mgOpen()">管理幣別</a></label><div class="cd"><div class="chips" style="margin-bottom:6px">${CURS.map((x,k)=>`<span class="c ${c.cur===x.k?"on":""}" onclick="cur.cur=CURS[${k}].k;ed()">${esc(x.n)}</span>`).join("")}</div>
 ${c.lines.map((l,n)=>`<div class="row dr" data-k="l" data-i="${n}"><div class="mr"><span class="hd" onpointerdown="dragStart(event)">≡</span><input placeholder="品項名稱（如 壓克力A）" value="${esc(l.n||"")}" oninput="ln(${n},'n',this.value)"><button class="ib" style="color:var(--tx)" onclick="lnCp(${n})">${CP}</button><button class="ib" onclick="lnDel(${n})">${TR}</button></div><div class="mr"><span>單價</span>${esc(sym(c.cur))}<input type="number" inputmode="decimal" value="${esc(l.price??"")}" oninput="ln(${n},'price',this.value)"></div><div class="mr"><span>二補單價</span>${esc(sym(c.cur))}<input type="number" inputmode="decimal" value="${esc(l.extra??"")}" oninput="ln(${n},'extra',this.value)"></div><div class="mr"><span>數量</span><input type="number" inputmode="numeric" value="${esc(l.q??1)}" oninput="ln(${n},'q',this.value)"></div></div>`).join("")}
@@ -167,4 +167,14 @@ async function mgDel(k,i){const L=LIST(k),o=L[i],nm=nmOf(k,o);
  if(!await ask("是否確認刪除「"+nm+"」？"))return;L.splice(i,1);
  try{if(k==="t"){for(const it of items)if((it.types||[]).includes(o))await putItem({...it,types:it.types.filter(x=>x!==o)});if(cur)cur.types=cur.types.filter(x=>x!==o)}await saveCfg();await load()}catch(e){toast("失敗："+(e.message||e.code))}mgR()}
 init();
+ async function addCustomHost(val){
+    const h = val.trim();
+    if(!h) return;
+    cur.host = h;
+    if(!HOSTS.includes(h)) {
+        HOSTS.push(h);
+        await saveCfg();
+    }
+    ed();
+}
 </script></body></html>
