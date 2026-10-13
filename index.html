@@ -99,6 +99,7 @@ create policy "delete own photos" on storage.objects for delete to authenticated
 const ST=["已喊單/不用二補運送中","已付款","未付款","已二補運送中","已付款未二補","已收到無二補","已收到有二補"];
 const STX=["已喊單","運送中(不用二補)"]; // 保留說明用
 let STATUS=["已喊單","不用二補運送中","已付款","未付款","已二補運送中","已付款未二補","已收到無二補","已收到有二補"];
+let EVENT_STATUS=["待購買","待交換","已完成"];
 let TYPES=["本","小卡","壓克力立牌","卡片・紙類","壓克力","貼紙","明信片","綜合"];
 let CURS=[{k:"KRW",n:"韓幣",s:"₩"},{k:"CNY",n:"人民幣",s:"¥"},{k:"TWD",n:"新台幣",s:"NT$"}],HOSTS=[],LK=[],WORKS=[],WF=[],VIEW="status",YR="全部",EV="",EF="全部",EVENTS=[],EVMAP={};
 const sym=c=>(CURS.find(x=>x.k===c)||{s:c}).s;
@@ -119,6 +120,8 @@ const PEN='<svg viewBox="0 0 640 640" width="16" height="16" fill="currentColor"
 const MAPI='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>';
 const PINI='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>';
 const XI='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+const eventStatuses=()=>[...new Set([...EVENT_STATUS,...items.filter(i=>i.ev).map(i=>i.es).filter(Boolean)])];
+const eventStatus=i=>i.es||EVENT_STATUS[0]||"待購買";
 const getEvents=()=>[...new Set([...EVENTS,...items.map(i=>i.ev).filter(Boolean)])];
 const evok=i=>!i.ev||i.es==="已完成";
 const getWorks=()=>[...new Set([...WORKS,...items.flatMap(i=>i.works||[])])];
@@ -132,7 +135,7 @@ let TH=0;const toast=m=>{const t=$("#toast");t.textContent=m;t.style.display="bl
 const out=()=>sb.auth.signOut().then(()=>location.reload());
 assets={upload:async b=>{const p=uid+"/"+Date.now()+Math.random().toString(36).slice(2,8)+".jpg";const {error}=await sb.storage.from(BK).upload(p,b,{contentType:"image/jpeg"});if(error)throw error;return{id:p}}};
 col={doc:id=>({set:async d=>{const {error}=await sb.from("items").upsert({id,data:d,updated_at:new Date().toISOString()});if(error)throw error},delete:async()=>{const {error}=await sb.from("items").delete().eq("id",id);if(error)throw error}})};
-async function load(){const {data,error}=await sb.from("items").select("id,data");if(error){$("#msg").textContent="同步失敗："+error.message;return}const cf=data.find(r=>r.id==="_cfg");if(cf){if(cf.data.statuses?.length)STATUS=cf.data.statuses;if(cf.data.types?.length)TYPES=cf.data.types;if(cf.data.hosts?.length)HOSTS=cf.data.hosts;if(cf.data.works?.length)WORKS=cf.data.works;if(cf.data.events?.length)EVENTS=cf.data.events;if(cf.data.evmap)EVMAP=cf.data.evmap;if(cf.data.currencies?.length)CURS=cf.data.currencies}items=data.filter(r=>r.id!=="_cfg").map(r=>({id:r.id,...r.data}));render()}
+async function load(){const {data,error}=await sb.from("items").select("id,data");if(error){$("#msg").textContent="同步失敗："+error.message;return}const cf=data.find(r=>r.id==="_cfg");if(cf){if(cf.data.statuses?.length)STATUS=cf.data.statuses;if(Array.isArray(cf.data.eventStatuses)&&cf.data.eventStatuses.length)EVENT_STATUS=cf.data.eventStatuses;if(cf.data.types?.length)TYPES=cf.data.types;if(cf.data.hosts?.length)HOSTS=cf.data.hosts;if(cf.data.works?.length)WORKS=cf.data.works;if(cf.data.events?.length)EVENTS=cf.data.events;if(cf.data.evmap)EVMAP=cf.data.evmap;if(cf.data.currencies?.length)CURS=cf.data.currencies}items=data.filter(r=>r.id!=="_cfg").map(r=>({id:r.id,...r.data}));render()}
 async function login(){const {error}=await sb.auth.signInWithPassword({email:$("#em").value.trim(),password:$("#pw").value});if(error)return toast("登入失敗："+error.message);start()}
 async function start(){const {data}=await sb.auth.getSession();if(!data.session){$("#lg").classList.add("on");return}
  uid=data.session.user.id;$("#lg").classList.remove("on");await load();sb.channel("items").on("postgres_changes",{event:"*",schema:"public",table:"items"},load).subscribe()}
@@ -153,11 +156,11 @@ function render(){
  let vis,gs;
  if(VIEW==="event"){const evs=getEvents();if(!evs.includes(EV))EV=evs[0]||"";
   $("#wtabs").innerHTML=`<button class="evb" onclick="evMenu(event)">${esc(EV||"選擇場次")} ▾</button><button class="evb" onclick="mapOpen()">${MAPI} 地圖</button>`;
-  const ET=["全部","待購買","已完成","待交換"];if(!ET.includes(EF))EF="全部";
+  const ET=["全部",...eventStatuses()];if(!ET.includes(EF))EF="全部";
   $("#tabs").innerHTML=ET.map(y=>`<div class="tab ${y===EF?"on":""}" onclick="EF='${y}';render()">${y}</div>`).join("");
-  const mine=items.filter(i=>i.ev&&i.ev===EV);vis=mine.filter(i=>EF==="全部"||(i.es||"待購買")===EF);
-  const cn=x=>mine.filter(i=>(i.es||"待購買")===x).length;
-  $("#ysum").textContent=EV?(EV+"　待購買 "+cn("待購買")+"・已完成 "+cn("已完成")+"・待交換 "+cn("待交換")):"";
+  const mine=items.filter(i=>i.ev&&i.ev===EV);vis=mine.filter(i=>EF==="全部"||eventStatus(i)===EF);
+  const cn=x=>mine.filter(i=>eventStatus(i)===x).length;
+  $("#ysum").textContent=EV?(EV+"　"+eventStatuses().map(x=>x+" "+cn(x)).join("・")):"";
   const bl=i=>{const b=(i.booth||"").trim();return b?b[0].toUpperCase():""};
   const ls=[...new Set(vis.map(bl))].sort((a,b)=>(a===""?1:0)-(b===""?1:0)||a.localeCompare(b));
   gs=ls.map((l,k)=>[l||"未填攤位",200+k,vis.filter(i=>bl(i)===l).sort(cmp)]);
@@ -181,20 +184,20 @@ function render(){
   return`<div class="sec"><div class="sh" onclick="collapsed[${k}]=${open};render()"><span>${open?"▾":"▸"} ${esc(s)} <small>${a.length} 種 · ${Object.entries(sums).map(([c,n])=>fmt(c,n)).join(" + ")||"0"}</small></span></div>${open?`<div class="grid">${a.map(card).join("")}</div>`:""}</div>`}).join("");
  if(col){if(VIEW==="event")$("#msg").textContent=!EV?"請從左上角新增場次":(vis.length?"":"這個場次還沒有物品，按右下角 + 新增");else $("#msg").textContent=items.length?"":"按右下角 + 新增第一件收藏品"}
 }
-const card=i=>`<div class="it"><div class="im" onclick="openView('${i.id}')">${i.images?.length?`<img src="${url(i.images[0])}">`:"無圖"}</div>${VIEW==="event"?`<button class="es ${(i.es||"待購買")==="已完成"?"done":(i.es==="待交換"?"sw":"")}" onclick="event.stopPropagation();togEs('${i.id}')">${(i.es||"待購買")==="已完成"?"✓ 已完成":(i.es||"待購買")}</button>`:""}<b>${esc(i.name)}</b><span>${[i.booth?"攤位 "+i.booth:"",i.cur?fmt(i.cur,tot(i)):""].filter(Boolean).join(" · ")}</span><div class="er"><button class="eb" onclick="openEd('${i.id}')">編輯</button><button class="eb cp" aria-label="複製" onclick="dupItem('${i.id}')">${CP}</button></div></div>`;
+const card=i=>`<div class="it"><div class="im" onclick="openView('${i.id}')">${i.images?.length?`<img src="${url(i.images[0])}">`:"無圖"}</div>${VIEW==="event"?`<button class="es ${(i.es||EVENT_STATUS[0]||"待購買")==="已完成"?"done":(i.es==="待交換"?"sw":"")}" onclick="event.stopPropagation();togEs('${i.id}')">${(i.es||EVENT_STATUS[0]||"待購買")==="已完成"?"✓ 已完成":(i.es||EVENT_STATUS[0]||"待購買")}</button>`:""}<b>${esc(i.name)}</b><span>${[i.booth?"攤位 "+i.booth:"",i.cur?fmt(i.cur,tot(i)):""].filter(Boolean).join(" · ")}</span><div class="er"><button class="eb" onclick="openEd('${i.id}')">編輯</button><button class="eb cp" aria-label="複製" onclick="dupItem('${i.id}')">${CP}</button></div></div>`;
 function openEd(id,pre){
  cur=id?{...items.find(i=>i.id===id)}:{id:"i"+Date.now(),name:"",qty:1,images:[],types:[],works:[],status:STATUS[0],host:"",cur:CURS[0].k,lines:[],extraTotal:"",links:[],note:"",date:new Date().toISOString().slice(0,10)};
  if(id)cur.lines=LN(cur).map(x=>({...x}));
  cur.works=cur.works||[];cur._new=!id;cur.links=normLinks(cur);if(pre)Object.assign(cur,pre);ensureLinks();ed();$("#ed").classList.add("on");$("#ed").scrollTop=0;
 }
 function ed(){const c=cur;LK=keys(c);
- $("#ed").innerHTML=`<div class="bar"><button class="p" onclick="closeEd()">取消</button><b>${c._new?"新增":"編輯"}收藏品</b><button class="p" onclick="save()">儲存</button></div>
+ $("#ed").innerHTML=`<div class="bar"><button class="p" onclick="closeEd()">取消</button><b>${c._new?"新增":"編輯"}${c.ev?"購買清單":"收藏品"}</b><button class="p" onclick="save()">儲存</button></div>
 ${c.ev?`<label class="l">攤位</label><div class="cd"><input placeholder="例如 A12（依第一個字母分組）" value="${esc(c.booth||"")}" oninput="cur.booth=this.value"></div>`:""}<label class="l">名稱</label><div class="cd"><input value="${esc(c.name)}" oninput="cur.name=this.value"></div>
 <label class="l">連結</label><div class="cd">${c.links.map((l,k)=>`<div class="${k?"row":""}"><div class="mr"><input placeholder="連結名稱（可自訂）" value="${esc(l.n)}" oninput="lkN(${k},this.value)"><button class="ib" onclick="lkDel(${k})">${TR}</button></div><div class="mr"><input type="url" placeholder="https://" value="${esc(l.u)}" oninput="lk(${k},this.value)"><a id="lk${k}" class="gl" target="_blank" rel="noopener" href="${esc(l.u?hrefOf(l.u):"#")}" style="display:${l.u?"flex":"none"}">${ico(l.u)}</a></div></div>`).join("")}<div class="${c.links.length?"row ":""}chips" style="padding:10px 4px"><span class="c" onclick="lkAdd('')">＋ 新增連結</span></div></div>
 <label class="l">照片（可多張，也可直接貼上）</label><div class="cd"><div class="th">${c.images.map((x,k)=>`<div><img src="${url(x)}" onclick="big(${k})"><i onclick="c_rm(${k})">×</i></div>`).join("")}<label class="add">＋ 選圖<input type="file" accept="image/*" multiple hidden onchange="addFiles(this.files)"></label></div><div id="pz" class="pz" contenteditable="true" data-ph="點這裡 → 再點一次選「貼上」" oninput="pzIn(this)"></div></div>
 ${c.ev?"":`<label class="l">狀態<a class="mgl" onclick="mgOpen('s')">${PEN}</a></label><div class="cd chips">${STATUS.map((s,k)=>`<span class="c ${c.status===s?"on":""}" onclick="cur.status=STATUS[${k}];ed()">${esc(s)}</span>`).join("")}<span class="c" onclick="$('#ns').style.display='flex';$('#nsi').focus()">＋ 自訂</span><div id="ns" class="mr" style="display:none;width:100%"><input id="nsi" placeholder="新狀態名稱"><button class="p" onclick="nsAdd()">新增</button></div></div>`}
 ${c.ev?"":`<label class="l">開團者<a class="mgl" onclick="mgOpen('h')">${PEN}</a></label><div class="cd chips">${hostL().map((h,k)=>`<span class="c ${c.host===h?"on":""}" onclick="pickHost(${k})">${esc(h)}</span>`).join("")}<span class="c" onclick="$('#nh').style.display='flex';$('#nhi').focus()">＋ 自訂</span><div id="nh" class="mr" style="display:none;width:100%"><input id="nhi" placeholder="新開團者"><button class="p" onclick="nhAdd()">新增</button></div></div>`}
-${c.ev?`<label class="l">狀態</label><div class="cd chips">${["待購買","待交換","已完成"].map(x=>`<span class="c ${(c.es||"待購買")===x?"on":""}" onclick="cur.es='${x}';ed()">${x}</span>`).join("")}</div>`:""}
+${c.ev?`<label class="l">狀態<a class="mgl" onclick="mgOpen('v')">${PEN}</a></label><div class="cd chips">${eventStatuses().map((x,k)=>`<span class="c ${eventStatus(c)===x?"on":""}" onclick="cur.es=eventStatuses()[${k}];ed()">${esc(x)}</span>`).join("")}<span class="c" onclick="$('#nvs').style.display='flex';$('#nvsi').focus()">＋ 自訂</span><div id="nvs" class="mr" style="display:none;width:100%"><input id="nvsi" placeholder="新狀態名稱"><button class="p" onclick="nvAdd()">新增</button></div></div>`:""}
 <label class="l">作品（可多選）<a class="mgl" onclick="mgOpen('w')">${PEN}</a></label><div class="cd chips">${wl().map((w,k)=>`<span class="c w ${c.works.includes(w)?"on":""}" onclick="tw(${k})">${esc(w)}</span>`).join("")}<span class="c w" onclick="$('#nw').style.display='flex';$('#nwi').focus()">＋ 自訂</span><div id="nw" class="mr" style="display:none;width:100%"><input id="nwi" placeholder="新作品名稱"><button class="p" onclick="nwAdd()">新增</button></div></div>
 <label class="l">商品類型（可多選）<a class="mgl" onclick="mgOpen('t')">${PEN}</a></label><div class="cd chips">${[...new Set([...getTypes(),...c.types])].map(t=>`<span class="c ${c.types.includes(t)?"on":""}" onclick="tg('${esc(t)}')">${esc(t)}</span>`).join("")}<span class="c" onclick="nt()">＋ 自訂</span><div id="nt" style="display:none;width:100%;display:none"><input id="nti" placeholder="新類型名稱，按 Enter" onkeydown="if(event.key==='Enter')nt2()"></div></div>
 ${c.ev?`<label class="l">場次購買<a class="mgl" onclick="mgOpen('e')">${PEN}</a></label><div class="cd chips">${getEvents().map((e,k)=>`<span class="c ${c.ev===e?"on":""}" onclick="pickEv(${k})">${esc(e)}</span>`).join("")}</div>`:""}
@@ -205,7 +208,7 @@ ${c.lines.map((l,n)=>`<div class="row dr" data-k="l" data-i="${n}"><div class="m
 <div class="tot" id="t">總金額 ${fmt(c.cur,tot(c))}</div></div>
 <label class="l">備註</label><div class="cd"><textarea rows="3" oninput="cur.note=this.value">${esc(c.note)}</textarea></div>
 <label class="l">購買日期</label><div class="cd"><input type="date" value="${c.date||""}" oninput="cur.date=this.value"></div>
-${c._new?"":`<button class="p del" onclick="del()">刪除此收藏品</button>`}`}
+${c._new?"":`<button class="p del" onclick="del()">刪除此${c.ev?"購買清單":"收藏品"}</button>`}`}
 const t=()=>{$("#t").textContent="總金額 "+fmt(cur.cur,tot(cur));$("#sp").textContent=fmt(cur.cur,sumP(cur));const et=$("#et");if(et)et.setAttribute("placeholder","自動 "+autoE(cur)+"（可手動輸入）")};
 const ln=(n,f,v)=>{cur.lines[n]={...cur.lines[n],[f]:v};t()};
 const lnAdd=k=>{cur.lines=[...cur.lines,{n:k>=0?cur.types[k]:"",price:"",extra:"",q:1}];ed()};
@@ -229,7 +232,8 @@ async function dupItem(id){const i=items.find(x=>x.id===id);if(!i)return;const {
 let MZ=1,DRAFT=null,MF="全部",GM={moved:false};
 const mapOpen=()=>{if(!EV)return toast("請先新增場次");MZ=1;DRAFT=null;MF="全部";mapR();$("#mp").classList.add("on");$("#mp").scrollTop=0};
 const mapClose=()=>{DRAFT=null;$("#mp").classList.remove("on")};
-function mapR(){const mi=EVMAP[EV],its=items.filter(i=>i.ev===EV),sOf=i=>i.es||"待購買";
+const eventFilterAt=k=>["全部",...eventStatuses()][k];
+function mapR(){const mi=EVMAP[EV],its=items.filter(i=>i.ev===EV),sOf=i=>i.es||EVENT_STATUS[0]||"待購買";
  const ov=$("#mpv"),sl=ov?ov.scrollLeft:0,st=ov?ov.scrollTop:0;
  const fl=i=>MF==="全部"?sOf(i)!=="已完成":sOf(i)===MF;
  const list=its.filter(fl).sort((a,b)=>(a.booth||"\uffff").localeCompare(b.booth||"\uffff",undefined,{numeric:true}));
@@ -240,7 +244,7 @@ function mapR(){const mi=EVMAP[EV],its=items.filter(i=>i.ev===EV),sOf=i=>i.es||"
  +(mi?`<div id="mpv"><div id="mpi" style="width:${MZ*100}%" onclick="mapTap(event)"><img src="${url(mi)}" alt="">${pins}</div></div>
 <div class="mz"><button class="p" onclick="mapZ(-0.5)">－</button><span>${Math.round(MZ*100)}%</span><button class="p" onclick="mapZ(0.5)">＋</button><label class="mup">更換<input type="file" accept="image/*" hidden onchange="mapUp(this.files[0])"></label></div>${DRAFT?`<div class="mz"><button class="p" onclick="markCancel()">取消</button><button class="p" style="background:#3a3a42;color:#fff" onclick="markOk()">確認</button></div>`:""}`
  :`<div class="note">這個場次還沒有地圖</div><div class="mz" style="justify-content:center"><label class="mup">上傳地圖<input type="file" accept="image/*" hidden onchange="mapUp(this.files[0])"></label></div>`)
- +`<div class="chips" style="margin:14px 0 8px">${["全部","待購買","待交換","已完成"].map(x=>`<span class="c ${MF===x?"on":""}" onclick="MF='${x}';mapR()">${x}</span>`).join("")}</div>`
+ +`<div class="chips" style="margin:14px 0 8px">${["全部",...eventStatuses()].map((x,k)=>`<span class="c ${MF===x?"on":""}" onclick="MF=eventFilterAt(${k});mapR()">${esc(x)}</span>`).join("")}</div>`
  +`<div class="cd">${list.length?list.map((i,k)=>`<div class="mrw ${k?"row":""}" onclick="mapRow('${i.id}')"><b class="bp">${esc(i.booth||"—")}</b><span class="mn"><b>${esc(i.name||"（未命名）")}</b>${sumP(i)>0?`<small>${fmt(i.cur||CURS[0].k,tot(i))}</small>`:""}</span><button class="es2 ${pc(i)}" onclick="rowEs(event,'${i.id}')">${sOf(i)==="已完成"?"✓ 已完成":sOf(i)}</button><button class="ib" style="color:var(--ac)" onclick="startMark(event,'${i.id}')">${PINI}</button>${i.mp?`<button class="ib" style="color:var(--sub)" onclick="clrMark(event,'${i.id}')">${XI}</button>`:""}</div>`).join(""):`<div class="note" style="margin:14px">沒有符合的物品</div>`}</div>`;
  const nv=$("#mpv");if(nv){nv.scrollLeft=sl;nv.scrollTop=st;mapBind()}}
 function mapSetZ(z,cx,cy){const v=$("#mpv");if(!v)return;z=Math.min(5,Math.max(1,z));const r=v.getBoundingClientRect(),px=cx-r.left,py=cy-r.top,fx=(v.scrollLeft+px)/v.scrollWidth,fy=(v.scrollTop+py)/v.scrollHeight;MZ=z;$("#mpi").style.width=MZ*100+"%";v.scrollLeft=fx*v.scrollWidth-px;v.scrollTop=fy*v.scrollHeight-py;const zl=document.querySelector(".mz span");if(zl)zl.textContent=Math.round(MZ*100)+"%"}
@@ -268,16 +272,17 @@ function mapJump(id){const i=items.find(x=>x.id===id);if(!i||!i.mp)return;if(MZ<
  const p=$("#pin"+id);if(p){p.classList.remove("hl");void p.offsetWidth;p.classList.add("hl")}}
 function pinTap(e,id){e.stopPropagation();if(GM.moved)return;const i=items.find(x=>x.id===id);if(i)toast((i.booth?i.booth+"　":"")+(i.name||""))}
 const setView=v=>{VIEW=v;cm();document.querySelectorAll(".mv").forEach(e=>e.classList.toggle("cur",e.dataset.v===v));render();window.scrollTo(0,0)};
-const fabAdd=()=>{if(VIEW==="event"){if(!EV)return toast("請先從左上角新增場次");openEd(null,{ev:EV,es:"待購買",status:""})}else openEd()};
+const fabAdd=()=>{if(VIEW==="event"){if(!EV)return toast("請先從左上角新增場次");openEd(null,{ev:EV,es:EVENT_STATUS[0],status:""})}else openEd()};
 function evMenu(e){e.stopPropagation();$("#mn").classList.remove("on");const m=$("#evm");if(m.classList.contains("on")){m.classList.remove("on");return}
  m.innerHTML=getEvents().map((x,k)=>`<div class="mi" onclick="setEv(${k})">${esc(x)}${x===EV?" ✓":""}</div>`).join("")+`<div class="mi" style="display:flex;gap:8px;align-items:center"><input id="evi" placeholder="新增場次名稱" style="background:var(--chip);border-radius:10px"><button class="p" style="padding:6px 12px;flex:none;background:var(--chip)" onclick="evAdd()">新增</button></div>`;m.classList.add("on")}
 const setEv=k=>{EV=getEvents()[k];cm();render()};
 async function evAdd(){const v=$("#evi").value.trim();if(!v)return;if(!getEvents().includes(v)){EVENTS=[...getEvents(),v];try{await saveCfg()}catch(e){toast("新增場次失敗："+(e.message||e.code));return}}EV=v;cm();render()}
-async function togEs(id){const i=items.find(x=>x.id===id);if(!i)return;const es=(i.es||"待購買")==="已完成"?"待購買":"已完成";const d=new Date(),ld=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+async function togEs(id){const i=items.find(x=>x.id===id);if(!i)return;const es=eventStatus(i)==="已完成"?(EVENT_STATUS.find(x=>x!=="已完成")||"待購買"):"已完成";const d=new Date(),ld=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
  const n={...i,es};if(es==="已完成")n.date=ld;Object.assign(i,n);render();if($("#mp").classList.contains("on"))mapR();try{await putItem(n);await load()}catch(e){toast("更新失敗："+(e.message||e.code))}}
-const pickEv=k=>{cur.ev=getEvents()[k];cur.es=cur.es||"待購買";ensureLinks();ed()};
+const pickEv=k=>{cur.ev=getEvents()[k];cur.es=cur.es||EVENT_STATUS[0];ensureLinks();ed()};
 const ensureLinks=()=>{if(cur.ev){cur.links=cur.links.filter(l=>l.u||(l.n!=="開團者連結"&&l.n!=="原作者連結"))}const d=cur.ev?["創作者連結"]:["開團者連結","原作者連結"];d.forEach((n,k)=>{if(!cur.links.some(l=>l.n===n))cur.links.splice(Math.min(k,cur.links.length),0,{n,u:""})})};
 const hostL=()=>[...new Set([...getHosts(),...(cur&&cur.host?[cur.host]:[])])];
+const nvAdd=async()=>{const v=$("#nvsi").value.trim();if(!v)return;if(!EVENT_STATUS.includes(v)){EVENT_STATUS=[...EVENT_STATUS,v];try{await saveCfg()}catch(e){toast("儲存狀態失敗："+(e.message||e.code));return}}cur.es=v;ed()};
 const nsAdd=async()=>{const v=$("#nsi").value.trim();if(!v)return;if(!STATUS.includes(v)){STATUS=[...STATUS,v];try{await saveCfg()}catch(e){toast("儲存狀態失敗："+(e.message||e.code));return}}cur.status=v;ed()};
 const nhAdd=()=>{const v=$("#nhi").value.trim();if(v){cur.host=v;ed()}};
 const wl=()=>[...new Set([...getWorks(),...((cur&&cur.works)||[])])];
@@ -320,15 +325,15 @@ async function imp(f){if(!f||!col)return;try{const j=JSON.parse(await f.text());
  if(!id)id=await b2d(await shrink(b,640,.55));imgs.push(id)}catch(e){}}
  const {id:oid,...data}=it;data.images=imgs;await col.doc(oid||"i"+Date.now()+n).set(data);n++}toast("已匯入 "+n+" 件")}catch(e){toast("匯入失敗："+(e.code||e.message))}}
 let PEND="",DG=null,MGK=null;const getTypes=()=>[...new Set([...TYPES,...items.flatMap(i=>i.types||[])])];
-const LIST=k=>({s:STATUS,t:TYPES,h:HOSTS,c:CURS,w:WORKS,e:EVENTS,l:cur&&cur.lines})[k];
-const setL=(k,a)=>{if(k==="s")STATUS=a;else if(k==="t")TYPES=a;else if(k==="h")HOSTS=a;else if(k==="w")WORKS=a;else if(k==="e")EVENTS=a;else CURS=a};
+const LIST=k=>({v:EVENT_STATUS,s:STATUS,t:TYPES,h:HOSTS,c:CURS,w:WORKS,e:EVENTS,l:cur&&cur.lines})[k];
+const setL=(k,a)=>{if(k==="v")EVENT_STATUS=a;else if(k==="s")STATUS=a;else if(k==="t")TYPES=a;else if(k==="h")HOSTS=a;else if(k==="w")WORKS=a;else if(k==="e")EVENTS=a;else CURS=a};
 const nmOf=(k,x)=>k==="c"?x.n:x;
-const saveCfg=()=>col.doc("_cfg").set({statuses:STATUS,types:TYPES,hosts:HOSTS,works:WORKS,events:EVENTS,evmap:EVMAP,currencies:CURS});
+const saveCfg=()=>col.doc("_cfg").set({statuses:STATUS,eventStatuses:EVENT_STATUS,types:TYPES,hosts:HOSTS,works:WORKS,events:EVENTS,evmap:EVMAP,currencies:CURS});
 const putItem=i=>{const {id,_new,...d}=i;return col.doc(id).set(d)};
-function mgOpen(k){MGK=typeof k==="string"?k:null;TYPES=getTypes();HOSTS=getHosts();WORKS=getWorks();EVENTS=getEvents();mgR();$("#mg").classList.add("on");$("#mg").scrollTop=0}
+function mgOpen(k){MGK=typeof k==="string"?k:null;TYPES=getTypes();HOSTS=getHosts();WORKS=getWorks();EVENTS=getEvents();EVENT_STATUS=eventStatuses();mgR();$("#mg").classList.add("on");$("#mg").scrollTop=0}
 function mgClose(){$("#mg").classList.remove("on");if($("#ed").classList.contains("on"))ed()}
 function mgR(){const sec=(t,k)=>{const L=LIST(k);return`<label class="l">${t}（按住 ≡ 拖動排序）</label><div class="cd">${L.map((x,i)=>`<div class="mr ${i?"row ":""}dr" data-k="${k}" data-i="${i}"><span class="hd" onpointerdown="dragStart(event)">≡</span>${k==="c"?`<input value="${esc(x.n)}" onchange="mgCur(${i},'n',this.value)"><input style="width:64px;flex:none" value="${esc(x.s)}" onchange="mgCur(${i},'s',this.value)">`:`<input value="${esc(x)}" onchange="mgRen('${k}',${i},this.value)">`}<button class="ib" onclick="mgDel('${k}',${i})">${TR}</button></div>`).join("")}<div class="mr row">${k==="c"?`<input id="addc" placeholder="幣別名稱"><input id="addcs" style="width:64px;flex:none" placeholder="符號">`:`<input id="add${k}" placeholder="新增${t}">`}<button class="p" onclick="mgAdd('${k}')">新增</button></div></div>`};
- const all=[["狀態","s"],["開團者","h"],["作品","w"],["場次","e"],["商品類型","t"],["幣別","c"]],pk=MGK?all.filter(x=>x[1]===MGK):all;
+ const all=[["狀態","s"],["購買清單狀態","v"],["開團者","h"],["作品","w"],["場次","e"],["商品類型","t"],["幣別","c"]],pk=MGK?all.filter(x=>x[1]===MGK):all;
  $("#mg").innerHTML=`<div class="bar"><span style="width:60px"></span><b>${MGK?"管理"+pk[0][0]:"管理分類"}</b><button class="p" onclick="mgClose()">完成</button></div>`+pk.map(x=>sec(x[0],x[1])).join("")}
 function dragStart(e){const row=e.currentTarget.closest(".dr");DG={row,k:row.dataset.k,list:row.parentNode};row.classList.add("dg");e.currentTarget.setPointerCapture(e.pointerId)}
 document.addEventListener("pointermove",e=>{if(!DG)return;e.preventDefault();for(const r of DG.list.querySelectorAll(".dr")){if(r===DG.row)continue;const b=r.getBoundingClientRect();if(e.clientY>b.top&&e.clientY<b.bottom){if(e.clientY<b.top+b.height/2)DG.list.insertBefore(DG.row,r);else r.after(DG.row);break}}},{passive:false});
@@ -338,12 +343,12 @@ async function mgAdd(k){if(k==="c"){const n=$("#addc").value.trim(),y=$("#addcs"
  const v=$("#add"+k).value.trim();if(!v)return;if(LIST(k).includes(v))return toast("已有相同名稱");LIST(k).push(v);await mgSave()}
 async function mgCur(i,f,v){v=v.trim();if(!v)return mgR();CURS[i][f]=v;await mgSave()}
 async function mgRen(k,i,v){v=v.trim();const L=LIST(k),o=L[i];if(!v||v===o)return mgR();if(L.includes(v)){toast("已有相同名稱");return mgR()}L[i]=v;
- const fx=it=>{const n={...it};let ch=false;if(k==="s"&&n.status===o){n.status=v;ch=true}if(k==="h"&&n.host===o){n.host=v;ch=true}if(k==="e"&&n.ev===o){n.ev=v;ch=true}if(k==="w"&&(n.works||[]).includes(o)){n.works=n.works.map(x=>x===o?v:x);ch=true}
+ const fx=it=>{const n={...it};let ch=false;if(k==="v"&&n.ev&&eventStatus(n)===o){n.es=v;ch=true}if(k==="s"&&n.status===o){n.status=v;ch=true}if(k==="h"&&n.host===o){n.host=v;ch=true}if(k==="e"&&n.ev===o){n.ev=v;ch=true}if(k==="w"&&(n.works||[]).includes(o)){n.works=n.works.map(x=>x===o?v:x);ch=true}
   if(k==="t"&&(n.types||[]).includes(o)){n.types=n.types.map(x=>x===o?v:x);if(n.lines&&n.lines[o]!==undefined){n.lines={...n.lines,[v]:n.lines[o]};delete n.lines[o]}ch=true}return ch?n:null};
- try{if(k==="e"&&EV===o)EV=v;if(k==="e"&&EVMAP[o]){EVMAP[v]=EVMAP[o];delete EVMAP[o]}if(k==="w")WF=WF.map(x=>x===o?v:x);await saveCfg();for(const it of items){const n=fx(it);if(n)await putItem(n)}if(cur){const n=fx(cur);if(n)cur=n}await load()}catch(e){toast("失敗："+(e.message||e.code))}mgR()}
+ try{if(k==="e"&&EV===o)EV=v;if(k==="e"&&EVMAP[o]){EVMAP[v]=EVMAP[o];delete EVMAP[o]}if(k==="v"){if(EF===o)EF=v;if(MF===o)MF=v}if(k==="w")WF=WF.map(x=>x===o?v:x);await saveCfg();for(const it of items){const n=fx(it);if(n)await putItem(n)}if(cur){const n=fx(cur);if(n)cur=n}await load()}catch(e){toast("失敗："+(e.message||e.code))}mgR()}
 async function mgDel(k,i){const L=LIST(k),o=L[i],nm=nmOf(k,o);
- const used=k==="s"?items.filter(x=>x.status===o).length:k==="h"?items.filter(x=>x.host===o).length:k==="c"?items.filter(x=>x.cur===o.k).length:k==="e"?items.filter(x=>x.ev===o).length:0;
- if(used)return toast("還有 "+used+" 件使用「"+nm+"」，請先改掉它們");if((k==="s"||k==="c")&&L.length<2)return toast("至少要留一個");
+ const used=k==="v"?items.filter(x=>x.ev&&eventStatus(x)===o).length:k==="s"?items.filter(x=>x.status===o).length:k==="h"?items.filter(x=>x.host===o).length:k==="c"?items.filter(x=>x.cur===o.k).length:k==="e"?items.filter(x=>x.ev===o).length:0;
+ if(used)return toast("還有 "+used+" 件使用「"+nm+"」，請先改掉它們");if((k==="s"||k==="c"||k==="v")&&L.length<2)return toast("至少要留一個");
  if(!await ask("是否確認刪除「"+nm+"」？"))return;L.splice(i,1);
  try{if(k==="t"){for(const it of items)if((it.types||[]).includes(o))await putItem({...it,types:it.types.filter(x=>x!==o)});if(cur)cur.types=cur.types.filter(x=>x!==o)}if(k==="w"){for(const it of items)if((it.works||[]).includes(o))await putItem({...it,works:it.works.filter(x=>x!==o)});if(cur&&cur.works)cur.works=cur.works.filter(x=>x!==o);WF=WF.filter(x=>x!==o)}if(k==="e")delete EVMAP[o];await saveCfg();await load()}catch(e){toast("失敗："+(e.message||e.code))}mgR()}
 init();
