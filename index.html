@@ -96,9 +96,9 @@ create policy "delete own photos" on storage.objects for delete to authenticated
 <button class="p del" style="color:var(--tx)" onclick="saveSetup()">儲存並前往登入</button><div class="note">不要貼 secret key 或資料庫密碼。</div></div>
 <div class="modal" id="lg"><h1>收藏紀錄</h1><div class="cd" style="margin-top:20px"><input id="em" type="email" placeholder="Email" autocomplete="username"><input id="pw" type="password" placeholder="密碼" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()"></div><button class="p del" style="color:var(--tx)" onclick="login()">登入</button></div><div class="modal" id="ed"></div><div class="modal" id="mg"></div><div class="modal" id="mp"></div><div id="vw" onclick="if(event.target===this)closeView()"></div><div id="ask"></div><div id="lb" onclick="lbClick(event)"><img id="lbi"><span id="lbn"></span></div>
 <script>
-const ST=["已喊單/不用二補運送中","已付款","未付款","已二補運送中","已付款未二補","已收到無二補","已收到有二補"];
+const ST=["待付款","已付款未二補","已收到"];
 const STX=["已喊單","運送中(不用二補)"]; // 保留說明用
-let STATUS=["已喊單","不用二補運送中","已付款","未付款","已二補運送中","已付款未二補","已收到無二補","已收到有二補"];
+let STATUS=["待付款","已付款未二補","已收到"];
 let EVENT_STATUS=["待購買","待交換","已完成"];
 let TYPES=["本","小卡","壓克力立牌","卡片・紙類","壓克力","貼紙","明信片","綜合"];
 let CURS=[{k:"KRW",n:"韓幣",s:"₩"},{k:"CNY",n:"人民幣",s:"¥"},{k:"TWD",n:"新台幣",s:"NT$"}],HOSTS=[],LK=[],WORKS=[],WF=[],VIEW="status",YR="全部",EV="",EF="全部",EVENTS=[],EVMAP={};
@@ -176,7 +176,12 @@ function render(){
   const hosts=["全部",...getHosts()];if(!hosts.includes(host))host="全部";
   $("#tabs").innerHTML=hosts.map(h=>`<div class="tab ${h===host?"on":""}" onclick="host='${esc(h).replace(/'/g,"\\'")}';render()">${esc(h)}</div>`).join("");
   vis=items.filter(i=>(host==="全部"||i.host===host)&&wf(i)&&evok(i));
-  gs=STATUS.map((s,k)=>[s,k,vis.filter(i=>i.status===s).sort(cmp)]);const evo=vis.filter(i=>i.ev&&!STATUS.includes(i.status)).sort(cmp),ot=vis.filter(i=>!i.ev&&!STATUS.includes(i.status)).sort(cmp);if(evo.length)gs.push(["場次購買",-3,evo]);if(ot.length)gs.push(["其他",-1,ot]);
+  // 已完成的場次購買視為已收到（場次商品不需要二補），不另設「場次購買」分類。
+  const received=STATUS.includes("已收到")?"已收到":(STATUS.find(s=>s.includes("已收到"))||"已收到");
+  const finishedEvents=vis.filter(i=>i.ev&&eventStatus(i)==="已完成");
+  gs=STATUS.map((s,k)=>[s,k,vis.filter(i=>!i.ev&&i.status===s).concat(s===received?finishedEvents:[]).sort(cmp)]);
+  if(!STATUS.includes(received)&&finishedEvents.length)gs.push([received,-3,finishedEvents.sort(cmp)]);
+  const ot=vis.filter(i=>!i.ev&&!STATUS.includes(i.status)).sort(cmp);if(ot.length)gs.push(["其他",-1,ot]);
  }
  $("#list").innerHTML=gs.map(([s,k,a])=>{if(!a.length)return"";
   const sums={};a.forEach(i=>{const c=i.cur||"TWD";sums[c]=(sums[c]||0)+tot(i)});
