@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8"><title>收藏紀錄</title><link rel="icon" type="image/png" href="LOGO.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="收藏紀錄"><link rel="apple-touch-icon" href="apple-touch-icon.png"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8"><title>收藏紀錄</title><link rel="icon" type="image/png" href="./LOGO.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="收藏紀錄"><link rel="apple-touch-icon" href="./apple-touch-icon.png"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f0eeee;--card:#fff;--tx:#222;--sub:#8a8a8e;--chip:#e9e9ec;--ac:#3a3a42;--red:#d9453d;--pad:max(14px,calc(50vw - 350px))}
@@ -108,7 +108,7 @@ const sym=c=>(CURS.find(x=>x.k===c)||{s:c}).s;
 const TR='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg>';
 const CP='<svg viewBox="0 -960 960 960" width="20" height="20" fill="currentColor"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>';
 const GL='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>';
-const DEF={u:"https://htjusjqfuiaxdcixalkl.supabase.co",k:"sb_publishable_cJYgIPUuiXTJQOCgn_1-gQ_mRv9D3ua"};let sb;const BK="photos";let uid=null;
+const DEF={u:"",k:""};let sb;const BK="photos";let uid=null;
 let db,assets,col,items=[],host="全部",cur=null,collapsed={};
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const num=v=>parseFloat(v)||0, fmt=(c,n)=>sym(c)+n.toLocaleString();
