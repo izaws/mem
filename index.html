@@ -43,6 +43,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}input[type=num
 .it{font-size:13px;position:relative}.it .im{aspect-ratio:3/4;background:var(--chip);border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--sub)}.it img{width:100%;height:100%;object-fit:cover}.it b{display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:1.4em}.it span{display:block;color:var(--sub);min-height:1.4em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bd{position:absolute;top:-6px;right:-6px;background:var(--sub);color:#fff;border-radius:99px;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px}
 .fab{position:fixed;right:max(18px,calc(50vw - 402px));bottom:calc(22px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;background:var(--ac);color:var(--bg);font-size:30px;border:0;box-shadow:0 4px 14px #0004}
+.fab2{bottom:calc(22px + 68px + env(safe-area-inset-bottom,0px));font-size:19px;font-weight:700}.fab2.on{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--ac)}
 .modal{position:fixed;inset:0;background:var(--bg);overflow:auto;padding:0 var(--pad) 60px;z-index:5;display:none}.modal.on{display:block}
 .bar{display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:6;background:var(--bg);margin:0 calc(-1*var(--pad)) 4px;padding:calc(10px + env(safe-area-inset-top,0px)) var(--pad) 10px}.bar b{font-size:17px}
 button.p{background:var(--card);border:0;border-radius:99px;padding:9px 18px;font-size:16px;color:var(--tx)}
@@ -76,15 +77,15 @@ input,select,textarea{width:100%;font:inherit;color:var(--tx);background:transpa
 .kfac{display:flex;align-items:center;justify-content:center;background:#dcdce2;color:#7a7a84;border-radius:6px;font-size:13px;font-weight:700;text-align:center;padding:4px;white-space:normal}.kfac.black-vertical,.kfac.red{writing-mode:vertical-rl;letter-spacing:.15em}.kfac.black-vertical{background:#4a4a52;color:#fff}.kfac.red{background:transparent;color:#e5484d}.kfac.gray{background:#e6e6ea}.kfac.sm{background:transparent;font-size:11px}
 .kzone{display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;color:#b9b9c4;pointer-events:none}
 #ks{position:absolute;left:0;right:0;bottom:0;max-height:74%;overflow:auto;background:var(--card);border-radius:22px 22px 14px 14px;box-shadow:0 -6px 24px #0004;padding:8px 18px 18px;display:none;overscroll-behavior:contain;z-index:3}#ks.on{display:block}
-.kgrab{width:42px;height:4px;border-radius:4px;background:#c9c9d0;margin:0 auto 10px}.khd{display:flex;align-items:center;gap:12px}.kimg{width:64px;height:64px;border-radius:12px;object-fit:cover;background:var(--chip);flex:none}.kti{flex:1;min-width:0}.kti b{display:block;font-size:18px}.kti small{color:var(--sub)}.kheart{color:var(--ac)}.kheart.on{color:#e5484d}
-.klk{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.kst{font-weight:700;margin:16px 0 6px;display:flex;justify-content:space-between}.kst small{color:var(--sub);font-weight:400}.kp{padding:8px 0;border-top:1px solid var(--chip)}.kpn{display:flex;justify-content:space-between;gap:10px}.kp small{color:var(--sub)}
+.kgrab{height:22px;position:relative;touch-action:none}.kgrab:after{content:"";position:absolute;left:50%;top:9px;width:42px;height:4px;margin-left:-21px;border-radius:4px;background:#c9c9d0}.khd{touch-action:none}.khd{display:flex;align-items:center;gap:12px}.kimg{width:64px;height:64px;border-radius:12px;object-fit:cover;background:var(--chip);flex:none}.kti{flex:1;min-width:0}.kti b{display:block;font-size:18px}.kti small{color:var(--sub)}.kheart{color:var(--ac)}.kheart.on{color:#e5484d}
+.klk{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.kst{font-weight:700;margin:16px 0 6px;display:flex;justify-content:space-between}.kst small{color:var(--sub);font-weight:400}.kps{position:relative;overflow:hidden;border-top:1px solid var(--chip)}.kpa{position:absolute;right:0;top:0;bottom:0;width:92px;border:0;background:var(--ac);color:var(--bg);font-weight:700;font-size:14px}.kpa.del{background:var(--red);color:#fff}.kp{padding:8px 0;background:var(--card);position:relative;touch-action:pan-y}.kin{font-style:normal;font-size:12px;color:var(--ac);font-weight:700}.kpn{display:flex;justify-content:space-between;gap:10px}.kp small{color:var(--sub)}
 .krow{display:flex;gap:10px;overflow-x:auto;padding:2px 0}.kth{flex:none;width:96px;cursor:pointer}.kth .kti2{width:96px;height:120px;border-radius:10px;overflow:hidden;background:var(--chip);display:flex;align-items:center;justify-content:center;color:var(--sub)}.kth img{width:100%;height:100%;object-fit:cover}.kth small{display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kth em{font-style:normal;font-size:11px;color:var(--sub)}
 .kbt{display:flex;gap:10px;margin-top:16px}.kbt button{flex:1;background:var(--chip)}.kbt .dk{background:var(--ac);color:var(--bg)}.knote{color:var(--sub);font-size:14px;padding:8px 0}
 .kopt{display:flex;gap:10px;align-items:center;padding:10px 14px;cursor:pointer}.kopt input{width:auto}#kdd{position:fixed;z-index:12;background:var(--card);border-radius:14px;box-shadow:0 6px 24px #0004;max-height:50vh;overflow:auto;min-width:220px;max-width:min(320px,90vw);display:none}#kdd.on{display:block}
 .event-work-tabs{padding:6px 14px;flex:initial;width:100%;gap:8px}.event-work-tabs .wc{flex:none}
 </style></head><body>
-<div id="hd"><div class="top"><div class="wtabs" id="wtabs"></div><div id="evm" onclick="event.stopPropagation()"></div><button class="ib mbtn" onclick="tm(event)" aria-label="選單"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div id="mn" onclick="event.stopPropagation()"><div class="mi mv cur" data-v="status" onclick="setView('status')">依狀態觀看</div><div class="mi mv" data-v="date" onclick="setView('date')">依日期觀看</div><div class="mi mv" data-v="event" onclick="setView('event')">場次購買清單</div><div class="mi" onclick="cm();mgOpen()">管理分類</div><div class="mi" onclick="exp();cm()">匯出備份</div><label class="mi">匯入備份<input type="file" accept=".json,application/json" hidden onchange="imp(this.files[0]);cm()"></label><div class="mi" onclick="openSbActivity()">Supabase 活動偵測</div><div class="mi" id="mcl" onclick="cpCfg()">複製設定連結</div><div class="mi" id="mrs" onclick="resetCfg()">重新設定 Supabase</div><div class="mi" id="musg" style="color:var(--sub);font-size:14px;cursor:default;line-height:1.6">已用容量</div><div class="mi" onclick="out()">登出</div></div></div><div class="tabs" id="tabs"></div></div><div id="ysum"></div><div id="list"></div><div class="note" id="msg"></div><div id="toast" style="display:none;position:fixed;left:50%;transform:translateX(-50%);width:min(calc(100% - 32px),488px);bottom:90px;background:var(--ac);color:var(--bg);padding:12px;border-radius:12px;z-index:20;text-align:center"></div>
-<button class="fab" onclick="fabAdd()">+</button>
+<div id="hd"><div class="top"><div class="wtabs" id="wtabs"></div><div id="evm" onclick="event.stopPropagation()"></div><button class="ib mbtn" onclick="tm(event)" aria-label="選單"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div id="mn" onclick="event.stopPropagation()"><div class="mi mv cur" data-v="status" onclick="setView('status')">依狀態觀看</div><div class="mi mv" data-v="date" onclick="setView('date')">依日期觀看</div><div class="mi" onclick="cm();mgOpen()">管理分類</div><div class="mi" onclick="exp();cm()">匯出備份</div><label class="mi">匯入備份<input type="file" accept=".json,application/json" hidden onchange="imp(this.files[0]);cm()"></label><div class="mi" onclick="openSbActivity()">Supabase 活動偵測</div><div class="mi" id="mcl" onclick="cpCfg()">複製設定連結</div><div class="mi" id="mrs" onclick="resetCfg()">重新設定 Supabase</div><div class="mi" id="musg" style="color:var(--sub);font-size:14px;cursor:default;line-height:1.6">已用容量</div><div class="mi" onclick="out()">登出</div></div></div><div class="tabs" id="tabs"></div></div><div id="ysum"></div><div id="list"></div><div class="note" id="msg"></div><div id="toast" style="display:none;position:fixed;left:50%;transform:translateX(-50%);width:min(calc(100% - 32px),488px);bottom:90px;background:var(--ac);color:var(--bg);padding:12px;border-radius:12px;z-index:20;text-align:center"></div>
+<button class="fab fab2" id="evfab" onclick="evToggle()" aria-label="場次購買清單">場</button><button class="fab" onclick="fabAdd()">+</button>
 <div class="modal" id="su"><h1 style="font-size:20px;text-align:left;margin-top:20px">首次設定</h1><div class="cd" style="line-height:1.7;font-size:15px">這個 App 的資料會存在你自己的 Supabase（免費），別人看不到。照下面做一次就好：<ol style="padding-left:20px;margin:8px 0 0"><li>到 supabase.com 註冊，建立一個新專案。</li><li>左側 SQL Editor → New query，貼上下方 SQL，按 Run。</li><li>Authentication → Users → Add user → Create new user，填 email 和密碼，勾選 Auto Confirm User。</li><li>專案首頁上方有 Project URL；Project Settings → API Keys 裡有 Publishable key。把兩個貼到下面。</li></ol></div>
 <label class="l">SQL</label><div class="cd"><textarea id="sql" readonly rows="8" style="font:12px/1.4 monospace">create table if not exists public.items (
   id text primary key,
@@ -191,6 +192,7 @@ function openSbActivity(){cm();document.getElementById("sbActivity").classList.a
 function closeSbActivity(){document.getElementById("sbActivity").classList.remove("on")}
 function sbDashboard(){const u=getCfg()?.u||"",m=u.match(/^https:\/\/([a-z0-9-]+)\.supabase\.co/i);window.open(m?"https://supabase.com/dashboard/project/"+encodeURIComponent(m[1]):"https://supabase.com/dashboard/projects","_blank","noopener,noreferrer")}
 function render(){
+ const ef=document.getElementById("evfab");if(ef)ef.classList.toggle("on",VIEW==="event");
  const ew=document.getElementById("eventWorkBar");if(ew&&VIEW!=="event")ew.style.display="none";
  const wl2=getWorks();WF=WF.filter(x=>wl2.includes(x));
  $("#wtabs").innerHTML=wl2.map((w,k)=>`<div class="wc ${WF.includes(w)?"on":""}" onclick="togW(${k})">${esc(w)}</div>`).join("");
@@ -323,6 +325,7 @@ function mapJump(id){const i=items.find(x=>x.id===id);if(!i||!i.mp)return;if(MZ<
  const v=$("#mpv"),m=$("#mpi");$("#mp").scrollTo({top:0,behavior:"smooth"});v.scrollTo({left:i.mp.x*m.clientWidth-v.clientWidth/2,top:i.mp.y*m.clientHeight-v.clientHeight/2,behavior:"smooth"});
  const p=$("#pin"+id);if(p){p.classList.remove("hl");void p.offsetWidth;p.classList.add("hl")}}
 function pinTap(e,id){e.stopPropagation();if(GM.moved)return;const i=items.find(x=>x.id===id);if(i)toast((i.booth?i.booth+"　":"")+(i.name||""))}
+let PREV="status";function evToggle(){if(VIEW==="event")setView(PREV||"status");else{PREV=VIEW;setView("event")}}
 const setView=v=>{VIEW=v;cm();document.querySelectorAll(".mv").forEach(e=>e.classList.toggle("cur",e.dataset.v===v));render();window.scrollTo(0,0)};
 const fabAdd=()=>{if(VIEW==="event"){if(!EV)return toast("請先從左上角新增場次");openEd(null,{ev:EV,es:EVENT_STATUS[0],ess:[EVENT_STATUS[0]],status:""})}else openEd()};
 function evMenu(e){e.stopPropagation();$("#mn").classList.remove("on");const m=$("#evm");if(m.classList.contains("on")){m.classList.remove("on");return}
@@ -464,6 +467,7 @@ const KZONES=[["E",2,2,3,4],["D",2,2,7,8],["C",2,2,11,12],["B",2,2,15,16],["A",2
 const normCode=s=>{s=String(s||"").trim().toUpperCase();const m=s.match(/^([A-Z特]+)0*(\d+)$/);return m?m[1]+m[2].padStart(2,"0"):s};
 const codesOf=v=>String(v||"").split(/[\/／,，、;；\s]+/).map(normCode).filter(Boolean);
 const KG=KBG.map(a=>({r1:a[0],r2:a[1],c1:a[2],c2:a[3],label:a[4],booths:a[5],name:a[6],url:a[7],tags:a[8],socials:a[9],codes:a[5].map(normCode),key:a[5].join("").replace(/[^A-Za-z0-9_-]/g,"")}));
+let KSP=[],OPENROW=null;const KOPEN=92;
 let KF={q:"",cat:[],work:[],fav:false,swap:false},KSEL=-1,KZ=1,KIMG=false,KP=[],KPL=false,KPE="",KPBusy=false,KPM={},KOPT=[],KM={};
 const MV=()=>EVMV[EV]||(/kup/i.test(EV)?"kv":"img");
 const lcs=s=>String(s||"").toLowerCase();
@@ -475,7 +479,7 @@ function mapRefresh(){const mp=$("#mp");if(!mp||!mp.classList.contains("on"))ret
 function mapSwitch(){EVMV[EV]=MV()==="kv"?"img":"kv";DRAFT=null;KSEL=-1;mapShow();try{saveCfg().catch(()=>{})}catch(e){}}
 function kvInit(){KSEL=-1;
  $("#mp").innerHTML=`${mapBar()}<div class="kvh"><input id="kq" placeholder="搜尋社團、攤位號、作品或商品" value="${esc(KF.q)}" oninput="KF.q=this.value;kvUpdate()"></div><div id="kvf"></div><div id="kvw"><div id="kv"><div id="kvi"><div class="kmap" id="kmap"></div></div></div><div class="kvc"><button class="kb" onclick="kvZ(1)">＋</button><button class="kb" onclick="kvZ(-1)">－</button><button class="kb" onclick="kvFit()">全區</button><div class="ksw ${KIMG?"on":""}" id="kimgsw" onclick="kvImg()"><span>顯示攤位圖</span><i></i></div></div><div id="ks"></div></div>`;
- kvBind();kvFit();kvUpdate();kvLoadP()}
+ kvBind();ksBind();kvFit();kvUpdate();kvLoadP()}
 const kvMin=()=>Math.max(.2,($("#kv")?$("#kv").clientWidth:360)/KW);
 function kvApply(){$("#kvi").style.width=KW*KZ+"px";$("#kvi").style.height=KH*KZ+"px";$("#kmap").style.transform="scale("+KZ+")"}
 function kvFit(){KZ=kvMin();kvApply();const v=$("#kv");if(v){v.scrollLeft=0;v.scrollTop=0}}
@@ -495,15 +499,15 @@ const mineAt=(g,m)=>{const s=new Set();g.codes.forEach(c=>(m[c]||[]).forEach(i=>
 const workHit=(g,w,ps,mine)=>{const x=lcw(w);return g.tags.some(t=>lcw(t).includes(x))||ps.some(p=>lcw(p.originalWork).includes(x))||mine.some(i=>(i.works||[]).some(y=>lcw(y)===x))};
 function kvCatOpts(){const c={};KP.forEach(p=>{const k=String(p.category||"").trim();if(k)c[k]=(c[k]||0)+1});return Object.keys(c).sort((a,b)=>c[b]-c[a])}
 function kvWorkOpts(){const seen=new Set(),out=[],add=w=>{const t=String(w||"").trim().replace(/^#+/,"");if(t&&!seen.has(t.toLowerCase())){seen.add(t.toLowerCase());out.push(t)}};getWorks().forEach(add);KQUICK.forEach(add);const c={};KP.forEach(p=>{const k=String(p.originalWork||"").trim().replace(/^#+/,"");if(k)c[k]=(c[k]||0)+1});Object.keys(c).sort((a,b)=>c[b]-c[a]).forEach(add);return out}
-function kvDrop(e,kind){e.stopPropagation();const d=$("#kdd"),r=e.currentTarget.getBoundingClientRect(),opts=kind==="cat"?kvCatOpts():kvWorkOpts();KOPT=opts;
+function kvDrop(e,kind){e.stopPropagation();const d=$("#kdd");if(d.classList.contains("on")&&d.dataset.k===kind){d.classList.remove("on");return}d.dataset.k=kind;const r=e.currentTarget.getBoundingClientRect(),opts=kind==="cat"?kvCatOpts():kvWorkOpts();KOPT=opts;
  d.innerHTML=opts.length?opts.map((o,k)=>`<label class="kopt"><input type="checkbox" ${KF[kind].includes(o)?"checked":""} onchange="kvTg('${kind}',${k})"><span>${esc(o)}</span></label>`).join(""):`<div class="knote" style="padding:12px 16px">${kind==="cat"&&!KPL?"商品資料尚未載入":"沒有資料"}</div>`;
  d.style.left=Math.max(8,Math.min(r.left,innerWidth-250))+"px";d.style.top=(r.bottom+6)+"px";d.classList.add("on")}
-function kvTg(kind,k){const o=KOPT[k];KF[kind]=KF[kind].includes(o)?KF[kind].filter(x=>x!==o):[...KF[kind],o];kvUpdate()}
+function kvTg(kind,k){const o=KOPT[k];KF[kind]=KF[kind].includes(o)?KF[kind].filter(x=>x!==o):[...KF[kind],o];kvUpdate();$("#kdd").classList.remove("on")}
 function kvUpdate(){if(!$("#kmap"))return;const m=kvMine();KM=m;
  const act=!!(KF.q||KF.fav||KF.swap||KF.cat.length||KF.work.length),q=lcs(KF.q).trim();
  const okf=g=>{const ps=prodAt(g),mine=mineAt(g,m);
   if(q&&!(lcs(g.label+" "+g.booths.join(" ")+" "+g.name+" "+g.tags.join(" ")).includes(q)||ps.some(p=>lcs(p.productName+" "+p.originalWork+" "+p.author).includes(q))||mine.some(i=>lcs(i.name).includes(q))))return false;
-  if(KF.fav&&!KFAV.includes(g.label))return false;
+  if(KF.fav&&!(KFAV.includes(g.label)||mine.some(i=>eStats(i).includes("待購買"))))return false;
   if(KF.swap&&!mine.some(i=>eStats(i).includes("待交換")))return false;
   if(KF.cat.length&&!ps.some(p=>KF.cat.includes(String(p.category||"").trim())))return false;
   if(KF.work.length&&!KF.work.some(w=>workHit(g,w,ps,mine)))return false;
@@ -515,20 +519,20 @@ function kvUpdate(){if(!$("#kmap"))return;const m=kvMine();KM=m;
   const cls=(i===KSEL?" sel":"")+(KFAV.includes(g.label)?" fv":"")+(act&&!okf(g)?" dim":"");
   return `<div class="kcell${cls}" id="kc${i}" style="grid-row:${g.r1}/${g.r2+1};grid-column:${g.c1}/${g.c2+1}" onclick="kvPick(${i})">${dot!==null?`<i class="kdt${dot}"></i>`:""}${KIMG&&g.key?`<img loading="lazy" decoding="async" src="${KIMGBASE}${g.key}.jpg" alt="" onerror="this.remove()">`:""}<span>${esc(g.booths.length>1?g.booths.join("\n"):g.label)}</span></div>`}).join("");
  $("#kmap").innerHTML=h;
- $("#kvf").innerHTML=`<span class="kchip${KF.cat.length?" on":""}" onclick="kvDrop(event,'cat')">參展類別${KF.cat.length?" ("+KF.cat.length+")":""} ▾</span><span class="kchip${KF.work.length?" on":""}" onclick="kvDrop(event,'work')">作品分類${KF.work.length?" ("+KF.work.length+")":""} ▾</span><span class="kchip${KF.fav?" on":""}" onclick="KF.fav=!KF.fav;kvUpdate()">我的逛展清單</span><span class="kchip${KF.swap?" on":""}" onclick="KF.swap=!KF.swap;kvUpdate()">待交換</span>`;
- const ks=$("#ks"),vc=document.querySelector(".kvc");
+ $("#kvf").innerHTML=`<span class="kchip${KF.work.length?" on":""}" onclick="kvDrop(event,'work')">作品分類${KF.work.length?" ("+KF.work.length+")":""} ▾</span><span class="kchip${KF.cat.length?" on":""}" onclick="kvDrop(event,'cat')">參展類別${KF.cat.length?" ("+KF.cat.length+")":""} ▾</span><span class="kchip${KF.fav?" on":""}" onclick="KF.fav=!KF.fav;kvUpdate()">我的逛展清單</span><span class="kchip${KF.swap?" on":""}" onclick="KF.swap=!KF.swap;kvUpdate()">待交換</span>`;
+ const ks=$("#ks"),vc=document.querySelector(".kvc");OPENROW=null;
  if(KSEL>=0){const t=ks.scrollTop;ks.innerHTML=kvSheet(KG[KSEL],m);ks.classList.add("on");ks.scrollTop=t;if(vc)vc.style.display="none"}else{ks.classList.remove("on");if(vc)vc.style.display=""}}
-function kvSheet(g,m){const ps=prodAt(g),mine=mineAt(g,m),fav=KFAV.includes(g.label);
+function kvSheet(g,m){const ps=prodAt(g),mine=mineAt(g,m),fav=KFAV.includes(g.label);KSP=ps;
  const links=[...new Set([g.url,...Object.values(g.socials||{})].filter(Boolean))];
- const prow=!KPL?`<div class="knote">${esc(KPE||"正在讀取最新商品資料…")}</div>`:(!ps.length?`<div class="knote">目前尚無資料。</div>`:ps.slice(0,40).map(p=>`<div class="kp"><div class="kpn"><b>${esc(p.productName)}</b>${p.price?`<span>${esc(p.price)}</span>`:""}</div><small>${[p.originalWork&&"#"+String(p.originalWork).replace(/^#+/,""),p.category,p.author&&"By "+p.author].filter(Boolean).map(esc).join(" ｜ ")}</small></div>`).join("")+(ps.length>40?`<div class="knote">還有 ${ps.length-40} 件，請到原活動頁查看</div>`:""));
+ const prow=!KPL?`<div class="knote">${esc(KPE||"正在讀取最新商品資料…")}</div>`:(!ps.length?`<div class="knote">目前尚無資料。</div>`:ps.slice(0,40).map((p,pi)=>{const ad=!!itemByKey(pkey(p));return `<div class="kps"><button class="kpa${ad?" del":""}" onclick="kvToggleP(${pi})">${ad?"刪除清單":"加入清單"}</button><div class="kp"><div class="kpn"><b>${esc(p.productName)}</b>${p.price?`<span>${esc(p.price)}</span>`:""}</div><small>${[p.originalWork&&"#"+String(p.originalWork).replace(/^#+/,""),p.category,p.author&&"By "+p.author].filter(Boolean).map(esc).join(" ｜ ")}</small>${ad?`<em class="kin">✓ 已在購買清單</em>`:""}</div></div>`}).join("")+(ps.length>40?`<div class="knote">還有 ${ps.length-40} 件，請到原活動頁查看</div>`:""));
  const mrow=mine.length?`<div class="krow">${mine.map(i=>`<div class="kth" onclick="openView('${i.id}')"><div class="kti2">${i.images&&i.images.length?`<img src="${url(i.images[0])}">`:"無圖"}</div><small>${esc(i.name||"（未命名）")}</small><em>${esc(eLabel(i))}</em></div>`).join("")}</div>`:`<div class="knote">還沒有這個攤位的購買項目</div>`;
  return `<div class="kgrab"></div><div class="khd"><img class="kimg" src="${KIMGBASE}${g.key}.jpg" alt="" onerror="this.style.visibility='hidden'"><div class="kti"><b>${esc(g.name||g.label)}</b><small>${esc(g.label)}${g.tags.length?" · "+esc(g.tags.slice(0,3).join(" ")):""}</small></div><button class="ib kheart${fav?" on":""}" aria-label="收藏" onclick="kvHeart(${KSEL})">${HEART(fav)}</button><button class="ib" style="color:var(--tx)" aria-label="關閉" onclick="kvClose()">${XI}</button></div>
 ${links.length?`<div class="klk">${links.map(u=>`<a class="gl" href="${esc(hrefOf(u))}" target="_blank" rel="noopener" title="${esc(u)}">${ico(u)}</a>`).join("")}</div>`:""}
 <div class="kst"><span>我的購買清單</span><small>${mine.length} 件</small></div>${mrow}
-<div class="kst"><span>商品資訊</span><small>${KPL?ps.length+" 件":""}</small></div>${prow}
+<div class="kst"><span>商品資訊</span><small>${KPL?ps.length+" 件 · 左滑加入清單":""}</small></div>${prow}
 <div class="kbt"><button class="p" onclick="kvGo(${KSEL})">帶我前往</button><button class="p dk" onclick="kvAdd(${KSEL})">加入購買清單</button></div>`}
 function kvPick(i){if(GM.moved)return;KSEL=i;kvUpdate()}
-function kvClose(){KSEL=-1;kvUpdate()}
+function kvClose(){KSEL=-1;const k=$("#ks");if(k){k.style.transition="";k.style.transform=""}kvUpdate()}
 async function kvHeart(i){const g=KG[i];if(!g)return;const on=!KFAV.includes(g.label);KFAV=on?[...KFAV,g.label]:KFAV.filter(x=>x!==g.label);kvUpdate();try{await saveCfg();toast(on?"已加入逛展清單":"已從逛展清單移除")}catch(e){toast("儲存失敗："+(e.message||e.code))}}
 function kvAdd(i){const g=KG[i];if(!g)return;openEd(null,{ev:EV,es:EVENT_STATUS[0],ess:[EVENT_STATUS[0]],status:"",booth:g.label})}
 function kvGo(i){const g=KG[i],v=$("#kv");if(!g||!v)return;if(KZ<.9){KZ=.9;kvApply()}
@@ -536,5 +540,27 @@ function kvGo(i){const g=KG[i],v=$("#kv");if(!g||!v)return;if(KZ<.9){KZ=.9;kvApp
  const sh=$("#ks").classList.contains("on")?$("#ks").offsetHeight:0;
  v.scrollTo({left:x*KZ-v.clientWidth/2,top:y*KZ-(v.clientHeight-sh)/2,behavior:"smooth"});
  const c=$("#kc"+i);if(c){c.classList.remove("hl");void c.offsetWidth;c.classList.add("hl")}}
+
+const pkey=p=>"kp:"+[codesOf(p.booth).join("/"),String(p.productName||"").trim(),String(p.author||"").trim()].join("|");
+const itemByKey=k=>items.find(i=>i.ev===EV&&i.ksrc===k);
+function ksBind(){const s=$("#ks");if(!s||s._b)return;s._b=1;let st=null;
+ const closeRow=r=>{if(r){r.style.transition="transform .2s";r.style.transform=""}if(OPENROW===r)OPENROW=null};
+ s.addEventListener("pointerdown",e=>{if(e.target.closest("button,a,input"))return;const row=e.target.closest(".kp"),top=e.target.closest(".kgrab,.khd");
+  if(row){if(OPENROW&&OPENROW!==row)closeRow(OPENROW);st={t:"r",el:row,x:e.clientX,y:e.clientY,b:OPENROW===row?-KOPEN:0,l:null}}
+  else if(top){st={t:"t",x:e.clientX,y:e.clientY,l:null}}});
+ s.addEventListener("pointermove",e=>{if(!st)return;const dx=e.clientX-st.x,dy=e.clientY-st.y;
+  if(!st.l){if(Math.abs(dx)<8&&Math.abs(dy)<8)return;st.l=Math.abs(dx)>Math.abs(dy)?"h":"v"}
+  if(st.t==="r"&&st.l==="h"){const x=Math.max(-KOPEN-24,Math.min(0,st.b+dx));st.el.style.transition="none";st.el.style.transform="translateX("+x+"px)";st.x2=x}
+  else if(st.t==="t"&&st.l==="v"&&dy>0){s.style.transition="none";s.style.transform="translateY("+dy+"px)";st.dy=dy}});
+ const end=()=>{if(!st)return;const c=st;st=null;
+  if(c.t==="r"&&c.l==="h"){if(c.x2!==undefined&&c.x2<-KOPEN/2){c.el.style.transition="transform .2s";c.el.style.transform="translateX("+(-KOPEN)+"px)";OPENROW=c.el}else closeRow(c.el)}
+  else if(c.t==="r"&&!c.l&&OPENROW===c.el)closeRow(c.el);
+  else if(c.t==="t"){if(c.dy>70)kvClose();else{s.style.transition="transform .2s";s.style.transform=""}}};
+ s.addEventListener("pointerup",end);s.addEventListener("pointercancel",end)}
+async function kvToggleP(pi){const p=KSP[pi];if(!p)return;const k=pkey(p),ex=itemByKey(k);
+ if(ex){if(!await ask("是否從購買清單移除「"+(ex.name||p.productName)+"」？"))return;try{await col.doc(ex.id).delete();items=items.filter(x=>x.id!==ex.id);kvUpdate();toast("已從購買清單移除")}catch(e){toast("移除失敗："+(e.message||e.code))}return}
+ const g=KG[KSEL],raw=String(p.price||""),m=raw.replace(/,/g,"").match(/\d+(?:\.\d+)?/),guess=/₩|KRW|韓元|원/i.test(raw)?"KRW":/¥|RMB|CNY|人民幣/i.test(raw)?"CNY":"TWD",cu=CURS.some(c=>c.k===guess)?guess:CURS[0].k,w=String(p.originalWork||"").trim().replace(/^#+/,""),id="i"+Date.now(),nm=String(p.productName||"").trim();
+ const it={name:nm,qty:1,images:[],types:[],works:w?[w]:[],status:"",host:"",cur:cu,lines:[{n:nm,price:m?m[0]:"",extra:"",q:1}],extraTotal:"",links:p.infoUrl?[{n:String(p.infoText||"商品資訊頁").trim(),u:p.infoUrl}]:[],note:[p.author&&"By "+p.author,p.category,p.notes].filter(Boolean).join(" ｜ "),date:todayStr(),ev:EV,es:EVENT_STATUS[0],ess:[EVENT_STATUS[0]],booth:String(p.booth||"").trim()||g.label,ksrc:k};
+ try{await col.doc(id).set(it);items=[...items,{id,...it}];kvUpdate();toast("已加入購買清單（缺少的內容可到購買清單補齊）")}catch(e){toast("加入失敗："+(e.message||e.code))}}
 init();
 </script></body></html>
