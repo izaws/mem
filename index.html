@@ -590,6 +590,7 @@ async function exportPendingImage(includeFriendSwap=true){
  if(VIEW!=="event")return toast("請先進入場次購買清單");
  if(!EV)return toast("請先新增場次");
  const its=items.filter(i=>i.ev===EV&&!eDone(i)&&(eStats(i).includes("待購買")||(includeFriendSwap&&eStats(i).includes("待交換")&&i.swapHelp==="friend")));
+ const hasFriendSwap=its.some(i=>includeFriendSwap&&eStats(i).includes("待交換")&&i.swapHelp==="friend");
  if(!its.length)return toast("沒有符合輸出條件的商品");
  toast("製作圖片中…");
  try{
@@ -600,14 +601,14 @@ async function exportPendingImage(includeFriendSwap=true){
   const mc=document.createElement("canvas").getContext("2d");mc.font="22px "+FF;
   const groups=keys.map(k=>{const rows=its.filter(i=>bk(i)===k).map(i=>{const cu=i.cur||CURS[0].k,swap=includeFriendSwap&&eStats(i).includes("待交換")&&i.swapHelp==="friend";
     const ls=LN(i).filter(l=>l.n||l.price);const base=ls.length?ls.map(l=>(l.n||i.name||"（未命名）")+"*"+qn(l)+(num(l.price)?" "+fmt(cu,num(l.price)*qn(l)):"")):[(i.name||"（未命名）")+"*1"];
-    if(swap)base.push("* 待交換");
+    if(swap && i.swapHelp==="friend")base.push("* 待交換");
     const lines=base.flatMap(t=>wrapTxt(mc,t,CW[3]-PAD*2)),notes=wrapTxt(mc,i.note||"",CW[5]-PAD*2),imgs=(i.images||[]).map(x=>imgMap[x]);
     const ir=Math.max(1,Math.ceil(imgs.length/2)),imgH=ir*TH+(ir-1)*GAP+PAD*2,h=Math.max(imgH,lines.length*LH+PAD*2,notes.length*LH+PAD*2,100);return{i,lines,notes,imgs,h}});
     return{booth:k,rows,h:rows.reduce((a,r)=>a+r.h,0),total:sumList(rows.map(r=>r.i))}});
   const H=TITLE+HEAD+groups.reduce((a,g)=>a+g.h,0)+24,sc=Math.min(2,Math.sqrt(16000000/(W*H)));
   const cv=document.createElement("canvas");cv.width=Math.round(W*sc);cv.height=Math.round(H*sc);const c=cv.getContext("2d");c.scale(sc,sc);
   c.fillStyle="#fff";c.fillRect(0,0,W,H);c.textBaseline="middle";
-  c.fillStyle="#222";c.font="bold 30px "+FF;c.textAlign="left";c.fillText(EV+"　待購買／待交換清單",20,TITLE/2);
+  c.fillStyle="#222";c.font="bold 30px "+FF;c.textAlign="left";c.fillText(EV+(hasFriendSwap?"　待購買／待交換清單":"　待購買清單"),20,TITLE/2);
   c.font="20px "+FF;c.fillStyle="#888";c.textAlign="right";c.fillText(todayStr(),W-20,TITLE/2+2);
   const X=[0];CW.forEach((w,k)=>X.push(X[k]+w));
   c.fillStyle="#eceef2";c.fillRect(0,TITLE,W,HEAD);c.fillStyle="#222";c.font="bold 22px "+FF;c.textAlign="center";
