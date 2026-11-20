@@ -257,6 +257,7 @@ ${c.ev?`<label class="l">攤位</label><div class="cd"><input placeholder="例�
 ${c.ev?"":`<label class="l">狀態<a class="mgl" onclick="mgOpen('s')">${PEN}</a></label><div class="cd chips">${STATUS.map((s,k)=>`<span class="c ${c.status===s?"on":""}" onclick="cur.status=STATUS[${k}];ed()">${esc(s)}</span>`).join("")}<span class="c" onclick="$('#ns').style.display='flex';$('#nsi').focus()">＋ 自訂</span><div id="ns" class="mr" style="display:none;width:100%"><input id="nsi" placeholder="新狀態名稱"><button class="p" onclick="nsAdd()">新增</button></div></div>`}
 ${c.ev?"":`<label class="l">開團者<a class="mgl" onclick="mgOpen('h')">${PEN}</a></label><div class="cd chips">${hostL().map((h,k)=>`<span class="c ${c.host===h?"on":""}" onclick="pickHost(${k})">${esc(h)}</span>`).join("")}<span class="c" onclick="$('#nh').style.display='flex';$('#nhi').focus()">＋ 自訂</span><div id="nh" class="mr" style="display:none;width:100%"><input id="nhi" placeholder="新開團者"><button class="p" onclick="nhAdd()">新增</button></div></div>`}
 ${c.ev?`<label class="l">狀態（可複選）<a class="mgl" onclick="mgOpen('v')">${PEN}</a></label><div class="cd chips">${eventStatuses().map((x,k)=>`<span class="c ${eStats(c).includes(x)?"on":""}" onclick="tgEs(${k})">${esc(x)}</span>`).join("")}<span class="c" onclick="$('#nvs').style.display='flex';$('#nvsi').focus()">＋ 自訂</span><div id="nvs" class="mr" style="display:none;width:100%"><input id="nvsi" placeholder="新狀態名稱"><button class="p" onclick="nvAdd()">新增</button></div></div>`:""}
+${c.ev&&eStats(c).includes("待交換")?`<label class="l">交換方式</label><div class="cd chips"><span class="c ${c.swapHelp==="friend"?"":"on"}" onclick="cur.swapHelp='self';ed()">自行交換</span><span class="c ${c.swapHelp==="friend"?"on":""}" onclick="cur.swapHelp='friend';ed()">請朋友幫忙交換</span><div style="width:100%;font-size:13px;color:var(--sub);padding:4px">自行交換不會出現在給朋友的輸出圖片中。</div></div>`:""}
 <label class="l">作品（可多選）<a class="mgl" onclick="mgOpen('w')">${PEN}</a></label><div class="cd chips">${wl().map((w,k)=>`<span class="c w ${c.works.includes(w)?"on":""}" onclick="tw(${k})">${esc(w)}</span>`).join("")}<span class="c w" onclick="$('#nw').style.display='flex';$('#nwi').focus()">＋ 自訂</span><div id="nw" class="mr" style="display:none;width:100%"><input id="nwi" placeholder="新作品名稱"><button class="p" onclick="nwAdd()">新增</button></div></div>
 <label class="l">商品類型（可多選）<a class="mgl" onclick="mgOpen('t')">${PEN}</a></label><div class="cd chips">${[...new Set([...getTypes(),...c.types])].map(t=>`<span class="c ${c.types.includes(t)?"on":""}" onclick="tg('${esc(t)}')">${esc(t)}</span>`).join("")}<span class="c" onclick="nt()">＋ 自訂</span><div id="nt" style="display:none;width:100%;display:none"><input id="nti" placeholder="新類型名稱，按 Enter" onkeydown="if(event.key==='Enter')nt2()"></div></div>
 ${c.ev?`<label class="l">場次購買<a class="mgl" onclick="mgOpen('e')">${PEN}</a></label><div class="cd chips">${getEvents().map((e,k)=>`<span class="c ${c.ev===e?"on":""}" onclick="pickEv(${k})">${esc(e)}</span>`).join("")}</div>`:""}
@@ -571,15 +572,24 @@ async function kvToggleP(pi){const p=KSP[pi];if(!p)return;const k=pkey(p),ex=ite
  try{await col.doc(id).set(it);items=[...items,{id,...it}];kvUpdate();toast("已加入購買清單（缺少的內容可到購買清單補齊）")}catch(e){toast("加入失敗："+(e.message||e.code))}}
 
 /* ===== 輸出待購買／待交換清單圖片 ===== */
+function exportPending(){
+ if(VIEW!=="event")return toast("請先進入場次購買清單");
+ if(!EV)return toast("請先新增場次");
+ const old=document.getElementById("exportOptions");if(old)old.remove();
+ const d=document.createElement("div");d.id="exportOptions";d.style.cssText="position:fixed;inset:0;background:#0008;z-index:35;display:flex;align-items:center;justify-content:center;padding:20px";
+ d.innerHTML=`<div style="background:var(--card);color:var(--tx);border-radius:18px;padding:22px;width:min(100%,360px)"><b style="font-size:18px">輸出朋友的購買清單</b><label style="display:flex;align-items:center;gap:10px;margin:22px 0;cursor:pointer"><input id="includeFriendSwap" type="checkbox" checked style="width:20px;height:20px;flex:none;accent-color:var(--ac)"><span>包含請朋友幫忙交換的商品</span></label><div style="color:var(--sub);font-size:13px;margin-bottom:18px">自行交換的商品一律不會輸出。</div><div style="display:flex;gap:10px"><button class="p" style="flex:1;background:var(--chip)" onclick="document.getElementById('exportOptions').remove()">取消</button><button class="p" style="flex:1;background:var(--ac);color:var(--bg)" onclick="const v=document.getElementById('includeFriendSwap').checked;document.getElementById('exportOptions').remove();exportPendingImage(v)">產生圖片</button></div></div>`;
+ d.addEventListener("click",e=>{if(e.target===d)d.remove()});document.body.appendChild(d);
+}
+
 const loadImg=u=>new Promise(r=>{const im=new Image();im.crossOrigin="anonymous";im.onload=()=>r(im);im.onerror=()=>r(null);im.src=u});
 const sumList=a=>{const o={};a.forEach(i=>{const c=i.cur||"TWD";o[c]=(o[c]||0)+tot(i)});return Object.entries(o).map(([c,n])=>fmt(c,n)).join(" + ")||"0"};
 function wrapTxt(ctx,t,w){const out=[];let line="";for(const ch of String(t)){if(ctx.measureText(line+ch).width>w&&line){out.push(line);line=ch}else line+=ch}if(line)out.push(line);return out.length?out:[""]}
 function drawCover(ctx,im,x,y,s){const r=Math.max(s/im.width,s/im.height),w=im.width*r,h=im.height*r;ctx.save();ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,s,s,10);else ctx.rect(x,y,s,s);ctx.clip();ctx.drawImage(im,x+(s-w)/2,y+(s-h)/2,w,h);ctx.restore()}
-async function exportPending(){
+async function exportPendingImage(includeFriendSwap=true){
  if(VIEW!=="event")return toast("請先進入場次購買清單");
  if(!EV)return toast("請先新增場次");
- const its=items.filter(i=>i.ev===EV&&!eDone(i)&&(eStats(i).includes("待購買")||eStats(i).includes("待交換")));
- if(!its.length)return toast("這個場次沒有待購買或待交換的物品");
+ const its=items.filter(i=>i.ev===EV&&!eDone(i)&&(eStats(i).includes("待購買")||(includeFriendSwap&&eStats(i).includes("待交換")&&i.swapHelp==="friend")));
+ if(!its.length)return toast("沒有符合輸出條件的商品");
  toast("製作圖片中…");
  try{
   const FF='"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif',CW=[100,170,320,380,180,250],W=CW.reduce((a,b)=>a+b,0),PAD=14,TH=140,GAP=12,LH=32,TITLE=84,HEAD=56;
