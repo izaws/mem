@@ -196,6 +196,7 @@ function closeSbActivity(){document.getElementById("sbActivity").classList.remov
 function sbDashboard(){const u=getCfg()?.u||"",m=u.match(/^https:\/\/([a-z0-9-]+)\.supabase\.co/i);window.open(m?"https://supabase.com/dashboard/project/"+encodeURIComponent(m[1]):"https://supabase.com/dashboard/projects","_blank","noopener,noreferrer")}
 function render(){
  const ef=document.getElementById("evfab");if(ef)ef.classList.toggle("on",VIEW==="event");
+  const xf=document.getElementById("expfab");if(xf)xf.style.display=VIEW==="event"?"":"none";
  const ew=document.getElementById("eventWorkBar");if(ew&&VIEW!=="event")ew.style.display="none";
  const wl2=getWorks();WF=WF.filter(x=>wl2.includes(x));
  $("#wtabs").innerHTML=wl2.map((w,k)=>`<div class="wc ${WF.includes(w)?"on":""}" onclick="togW(${k})">${esc(w)}</div>`).join("");
@@ -575,21 +576,22 @@ const sumList=a=>{const o={};a.forEach(i=>{const c=i.cur||"TWD";o[c]=(o[c]||0)+t
 function wrapTxt(ctx,t,w){const out=[];let line="";for(const ch of String(t)){if(ctx.measureText(line+ch).width>w&&line){out.push(line);line=ch}else line+=ch}if(line)out.push(line);return out.length?out:[""]}
 function drawCover(ctx,im,x,y,s){const r=Math.max(s/im.width,s/im.height),w=im.width*r,h=im.height*r;ctx.save();ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,s,s,10);else ctx.rect(x,y,s,s);ctx.clip();ctx.drawImage(im,x+(s-w)/2,y+(s-h)/2,w,h);ctx.restore()}
 async function exportPending(){
+ if(VIEW!=="event")return toast("請先進入場次購買清單");
  if(!EV)return toast("請先新增場次");
  const its=items.filter(i=>i.ev===EV&&!eDone(i)&&(eStats(i).includes("待購買")||eStats(i).includes("待交換")));
  if(!its.length)return toast("這個場次沒有待購買或待交換的物品");
  toast("製作圖片中…");
  try{
-  const FF='"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif',CW=[100,170,320,380,180],W=CW.reduce((a,b)=>a+b,0),PAD=14,TH=140,GAP=12,LH=32,TITLE=84,HEAD=56;
+  const FF='"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif',CW=[100,170,320,380,180,250],W=CW.reduce((a,b)=>a+b,0),PAD=14,TH=140,GAP=12,LH=32,TITLE=84,HEAD=56;
   const bk=i=>(i.booth||"").trim();
   const keys=[...new Set(its.map(bk))].sort((a,b)=>(a===""?1:0)-(b===""?1:0)||a.localeCompare(b,undefined,{numeric:true}));
   const imgMap={};await Promise.all(its.flatMap(i=>(i.images||[]).map(async x=>{imgMap[x]=await loadImg(url(x))})));
   const mc=document.createElement("canvas").getContext("2d");mc.font="22px "+FF;
   const groups=keys.map(k=>{const rows=its.filter(i=>bk(i)===k).map(i=>{const cu=i.cur||CURS[0].k,swap=eStats(i).includes("待交換");
     const ls=LN(i).filter(l=>l.n||l.price);const base=ls.length?ls.map(l=>(l.n||i.name||"（未命名）")+"*"+qn(l)+(num(l.price)?" "+fmt(cu,num(l.price)*qn(l)):"")):[(i.name||"（未命名）")+"*1"];
-    if(swap)base[0]="（待交換）"+base[0];
-    const lines=base.flatMap(t=>wrapTxt(mc,t,CW[3]-PAD*2)),imgs=(i.images||[]).map(x=>imgMap[x]);
-    const ir=Math.max(1,Math.ceil(imgs.length/2)),imgH=ir*TH+(ir-1)*GAP+PAD*2,h=Math.max(imgH,lines.length*LH+PAD*2,100);return{i,lines,imgs,h}});
+    if(swap)base.push("* 待交換");
+    const lines=base.flatMap(t=>wrapTxt(mc,t,CW[3]-PAD*2)),notes=wrapTxt(mc,i.note||"",CW[5]-PAD*2),imgs=(i.images||[]).map(x=>imgMap[x]);
+    const ir=Math.max(1,Math.ceil(imgs.length/2)),imgH=ir*TH+(ir-1)*GAP+PAD*2,h=Math.max(imgH,lines.length*LH+PAD*2,notes.length*LH+PAD*2,100);return{i,lines,notes,imgs,h}});
     return{booth:k,rows,h:rows.reduce((a,r)=>a+r.h,0),total:sumList(rows.map(r=>r.i))}});
   const H=TITLE+HEAD+groups.reduce((a,g)=>a+g.h,0)+24,sc=Math.min(2,Math.sqrt(16000000/(W*H)));
   const cv=document.createElement("canvas");cv.width=Math.round(W*sc);cv.height=Math.round(H*sc);const c=cv.getContext("2d");c.scale(sc,sc);
@@ -598,7 +600,7 @@ async function exportPending(){
   c.font="20px "+FF;c.fillStyle="#888";c.textAlign="right";c.fillText(todayStr(),W-20,TITLE/2+2);
   const X=[0];CW.forEach((w,k)=>X.push(X[k]+w));
   c.fillStyle="#eceef2";c.fillRect(0,TITLE,W,HEAD);c.fillStyle="#222";c.font="bold 22px "+FF;c.textAlign="center";
-  ["確認","攤位號碼","商品圖片","待購買商品數量與金額","總金額"].forEach((t,k)=>c.fillText(t,X[k]+CW[k]/2,TITLE+HEAD/2));
+  ["確認","攤位號碼","商品圖片","待購買商品數量與金額","總金額","備註"].forEach((t,k)=>c.fillText(t,X[k]+CW[k]/2,TITLE+HEAD/2));
   let y=TITLE+HEAD;const line=(x1,y1,x2,y2)=>{c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke()};
   c.strokeStyle="#6e6e75";c.lineWidth=1.5;
   groups.forEach(g=>{const gy=y;
@@ -608,7 +610,8 @@ async function exportPending(){
     r.imgs.forEach((im,k)=>{const col=k%2,row=Math.floor(k/2),ix=X[2]+PAD+col*(TH+GAP),iy=y+PAD+row*(TH+GAP);if(im)drawCover(c,im,ix,iy,TH);else{c.fillStyle="#eee";c.fillRect(ix,iy,TH,TH);c.fillStyle="#aaa";c.font="18px "+FF;c.textAlign="center";c.fillText("圖片失敗",ix+TH/2,iy+TH/2)}});
     // text
     c.fillStyle="#222";c.font="22px "+FF;c.textAlign="left";const th=r.lines.length*LH,ty=y+(r.h-th)/2+LH/2;r.lines.forEach((t,k)=>c.fillText(t,X[3]+PAD,ty+k*LH));
-    y+=r.h;if(ri<g.rows.length-1)line(X[2],y,X[4],y)});
+    const nt=r.notes.length*LH,ny=y+(r.h-nt)/2+LH/2;c.font="20px "+FF;r.notes.forEach((t,k)=>c.fillText(t,X[5]+PAD,ny+k*LH));
+    y+=r.h;if(ri<g.rows.length-1)line(X[2],y,X[4],y);line(X[5],y,X[6],y)});
    const gh=y-gy,cy=gy+gh/2;
    c.strokeRect(X[0]+35,cy-15,30,30);
    c.fillStyle="#222";c.textAlign="center";c.font="bold 28px "+FF;c.fillText(g.booth||"—",X[1]+CW[1]/2,cy);
