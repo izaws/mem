@@ -605,7 +605,7 @@ async function exportPendingImage(includeFriendSwap=true){
     const lines=base.flatMap(t=>wrapTxt(mc,t,CW[3]-PAD*2)),notes=wrapTxt(mc,i.note||"",CW[5]-PAD*2),imgs=(i.images||[]).map(x=>imgMap[x]);
     const ir=Math.max(1,Math.ceil(imgs.length/2)),imgH=ir*TH+(ir-1)*GAP+PAD*2,h=Math.max(imgH,lines.length*LH+PAD*2,notes.length*LH+PAD*2,100);return{i,lines,notes,imgs,h}});
     return{booth:k,rows,h:rows.reduce((a,r)=>a+r.h,0),total:sumList(rows.map(r=>r.i))}});
-  const H=TITLE+HEAD+groups.reduce((a,g)=>a+g.h,0)+24,sc=Math.min(2,Math.sqrt(16000000/(W*H)));
+  const FOOT=76,H=TITLE+HEAD+groups.reduce((a,g)=>a+g.h,0)+FOOT,sc=Math.min(2,Math.sqrt(16000000/(W*H)));
   const cv=document.createElement("canvas");cv.width=Math.round(W*sc);cv.height=Math.round(H*sc);const c=cv.getContext("2d");c.scale(sc,sc);
   c.fillStyle="#fff";c.fillRect(0,0,W,H);c.textBaseline="middle";
   c.fillStyle="#222";c.font="bold 30px "+FF;c.textAlign="left";c.fillText(EV+(hasFriendSwap?"　待購買／待交換清單":"　待購買清單"),20,TITLE/2);
@@ -630,7 +630,13 @@ async function exportPendingImage(includeFriendSwap=true){
    c.font="bold 24px "+FF;const tl=wrapTxt(c,g.total,CW[4]-24);tl.forEach((t,k)=>c.fillText(t,X[4]+CW[4]/2,cy+(k-(tl.length-1)/2)*30));
    line(0,y,W,y)});
   line(0,TITLE,W,TITLE);line(0,TITLE+HEAD,W,TITLE+HEAD);X.forEach(x=>line(x,TITLE,x,y));line(0,TITLE,0,y);line(W,TITLE,W,y);
-  c.fillStyle="#aaa";c.font="16px "+FF;c.textAlign="right";c.fillText("共 "+its.length+" 件",W-12,y+14);
+  // 表格下方彙總：僅計入本次輸出的商品，依幣別分別加總。
+  c.fillStyle="#f1f2f5";c.fillRect(0,y,W,FOOT);
+  c.strokeStyle="#6e6e75";line(0,y,W,y);
+  c.fillStyle="#222";c.font="bold 25px "+FF;c.textAlign="left";
+  c.fillText("全部商品總金額",20,y+FOOT/2);
+  c.textAlign="right";c.font="bold 27px "+FF;
+  c.fillText(sumList(its),W-20,y+FOOT/2);
   const blob=await new Promise(r=>cv.toBlob(r,"image/jpeg",.92));if(!blob)throw new Error("轉檔失敗");
   const fn=EV+"-待購買清單-"+todayStr()+".jpg",file=new File([blob],fn,{type:"image/jpeg"});
   if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:fn});toast("已產生圖片");return}catch(e){if(e&&e.name==="AbortError")return}}
