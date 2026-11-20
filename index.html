@@ -43,7 +43,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}input[type=num
 .it{font-size:13px;position:relative}.it .im{aspect-ratio:3/4;background:var(--chip);border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--sub)}.it img{width:100%;height:100%;object-fit:cover}.it b{display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:1.4em}.it span{display:block;color:var(--sub);min-height:1.4em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bd{position:absolute;top:-6px;right:-6px;background:var(--sub);color:#fff;border-radius:99px;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px}
 .fab{position:fixed;right:max(18px,calc(50vw - 402px));bottom:calc(22px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;background:var(--ac);color:var(--bg);font-size:30px;border:0;box-shadow:0 4px 14px #0004}
-.fab2{bottom:calc(22px + 68px + env(safe-area-inset-bottom,0px));font-size:19px;font-weight:700}.fab2.on{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--ac)}
+.fab2{bottom:calc(22px + 68px + env(safe-area-inset-bottom,0px));font-size:19px;font-weight:700}.fab3{bottom:calc(22px + 136px + env(safe-area-inset-bottom,0px))}
+.fab2.on{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--ac)}
 .modal{position:fixed;inset:0;background:var(--bg);overflow:auto;padding:0 var(--pad) 60px;z-index:5;display:none}.modal.on{display:block}
 .bar{display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:6;background:var(--bg);margin:0 calc(-1*var(--pad)) 4px;padding:calc(10px + env(safe-area-inset-top,0px)) var(--pad) 10px}.bar b{font-size:17px}
 button.p{background:var(--card);border:0;border-radius:99px;padding:9px 18px;font-size:16px;color:var(--tx)}
@@ -87,7 +88,7 @@ input,select,textarea{width:100%;font:inherit;color:var(--tx);background:transpa
 .event-work-tabs{padding:6px 14px;flex:initial;width:100%;gap:8px}.event-work-tabs .wc{flex:none}
 </style></head><body>
 <div id="hd"><div class="top"><div class="wtabs" id="wtabs"></div><div id="evm" onclick="event.stopPropagation()"></div><button class="ib mbtn" onclick="tm(event)" aria-label="選單"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div id="mn" onclick="event.stopPropagation()"><div class="mi mv cur" data-v="status" onclick="setView('status')">依狀態觀看</div><div class="mi mv" data-v="date" onclick="setView('date')">依日期觀看</div><div class="mi" onclick="cm();mgOpen()">管理分類</div><div class="mi" onclick="exp();cm()">匯出備份</div><label class="mi">匯入備份<input type="file" accept=".json,application/json" hidden onchange="imp(this.files[0]);cm()"></label><div class="mi" onclick="openSbActivity()">Supabase 活動偵測</div><div class="mi" id="mcl" onclick="cpCfg()">複製設定連結</div><div class="mi" id="mrs" onclick="resetCfg()">重新設定 Supabase</div><div class="mi" id="musg" style="color:var(--sub);font-size:14px;cursor:default;line-height:1.6">已用容量</div><div class="mi" onclick="out()">登出</div></div></div><div class="tabs" id="tabs"></div></div><div id="ysum"></div><div id="list"></div><div class="note" id="msg"></div><div id="toast" style="display:none;position:fixed;left:50%;transform:translateX(-50%);width:min(calc(100% - 32px),488px);bottom:90px;background:var(--ac);color:var(--bg);padding:12px;border-radius:12px;z-index:20;text-align:center"></div>
-<button class="fab fab2" id="evfab" onclick="evToggle()" aria-label="場次購買清單">場</button><button class="fab" onclick="fabAdd()">+</button>
+<button class="fab fab3" id="expfab" onclick="exportPending()" aria-label="輸出待購買清單圖片"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></button><button class="fab fab2" id="evfab" onclick="evToggle()" aria-label="場次購買清單">場</button><button class="fab" onclick="fabAdd()">+</button>
 <div class="modal" id="su"><h1 style="font-size:20px;text-align:left;margin-top:20px">首次設定</h1><div class="cd" style="line-height:1.7;font-size:15px">這個 App 的資料會存在你自己的 Supabase（免費），別人看不到。照下面做一次就好：<ol style="padding-left:20px;margin:8px 0 0"><li>到 supabase.com 註冊，建立一個新專案。</li><li>左側 SQL Editor → New query，貼上下方 SQL，按 Run。</li><li>Authentication → Users → Add user → Create new user，填 email 和密碼，勾選 Auto Confirm User。</li><li>專案首頁上方有 Project URL；Project Settings → API Keys 裡有 Publishable key。把兩個貼到下面。</li></ol></div>
 <label class="l">SQL</label><div class="cd"><textarea id="sql" readonly rows="8" style="font:12px/1.4 monospace">create table if not exists public.items (
   id text primary key,
@@ -567,5 +568,58 @@ async function kvToggleP(pi){const p=KSP[pi];if(!p)return;const k=pkey(p),ex=ite
  const g=KG[KSEL],raw=String(p.price||""),m=raw.replace(/,/g,"").match(/\d+(?:\.\d+)?/),guess=/₩|KRW|韓元|원/i.test(raw)?"KRW":/¥|RMB|CNY|人民幣/i.test(raw)?"CNY":"TWD",cu=CURS.some(c=>c.k===guess)?guess:CURS[0].k,w=String(p.originalWork||"").trim().replace(/^#+/,""),id="i"+Date.now(),nm=String(p.productName||"").trim();
  const it={name:nm,qty:1,images:[],types:[],works:w?[w]:[],status:"",host:"",cur:cu,lines:[{n:nm,price:m?m[0]:"",extra:"",q:1}],extraTotal:"",links:[...(p.infoUrl?[{n:String(p.infoText||"預定／資訊頁").trim(),u:p.infoUrl}]:[]),...(p.authorUrl?[{n:"作者 "+String(p.author||"").trim(),u:p.authorUrl}]:[])],note:[p.author&&"By "+p.author,p.category,p.notes].filter(Boolean).join(" ｜ "),date:todayStr(),ev:EV,es:EVENT_STATUS[0],ess:[EVENT_STATUS[0]],booth:String(p.booth||"").trim()||g.label,ksrc:k};
  try{await col.doc(id).set(it);items=[...items,{id,...it}];kvUpdate();toast("已加入購買清單（缺少的內容可到購買清單補齊）")}catch(e){toast("加入失敗："+(e.message||e.code))}}
+
+/* ===== 輸出待購買／待交換清單圖片 ===== */
+const loadImg=u=>new Promise(r=>{const im=new Image();im.crossOrigin="anonymous";im.onload=()=>r(im);im.onerror=()=>r(null);im.src=u});
+const sumList=a=>{const o={};a.forEach(i=>{const c=i.cur||"TWD";o[c]=(o[c]||0)+tot(i)});return Object.entries(o).map(([c,n])=>fmt(c,n)).join(" + ")||"0"};
+function wrapTxt(ctx,t,w){const out=[];let line="";for(const ch of String(t)){if(ctx.measureText(line+ch).width>w&&line){out.push(line);line=ch}else line+=ch}if(line)out.push(line);return out.length?out:[""]}
+function drawCover(ctx,im,x,y,s){const r=Math.max(s/im.width,s/im.height),w=im.width*r,h=im.height*r;ctx.save();ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,s,s,10);else ctx.rect(x,y,s,s);ctx.clip();ctx.drawImage(im,x+(s-w)/2,y+(s-h)/2,w,h);ctx.restore()}
+async function exportPending(){
+ if(!EV)return toast("請先新增場次");
+ const its=items.filter(i=>i.ev===EV&&!eDone(i)&&(eStats(i).includes("待購買")||eStats(i).includes("待交換")));
+ if(!its.length)return toast("這個場次沒有待購買或待交換的物品");
+ toast("製作圖片中…");
+ try{
+  const FF='"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif',CW=[100,170,320,380,180],W=CW.reduce((a,b)=>a+b,0),PAD=14,TH=140,GAP=12,LH=32,TITLE=84,HEAD=56;
+  const bk=i=>(i.booth||"").trim();
+  const keys=[...new Set(its.map(bk))].sort((a,b)=>(a===""?1:0)-(b===""?1:0)||a.localeCompare(b,undefined,{numeric:true}));
+  const imgMap={};await Promise.all(its.flatMap(i=>(i.images||[]).map(async x=>{imgMap[x]=await loadImg(url(x))})));
+  const mc=document.createElement("canvas").getContext("2d");mc.font="22px "+FF;
+  const groups=keys.map(k=>{const rows=its.filter(i=>bk(i)===k).map(i=>{const cu=i.cur||CURS[0].k,swap=eStats(i).includes("待交換");
+    const ls=LN(i).filter(l=>l.n||l.price);const base=ls.length?ls.map(l=>(l.n||i.name||"（未命名）")+"*"+qn(l)+(num(l.price)?" "+fmt(cu,num(l.price)*qn(l)):"")):[(i.name||"（未命名）")+"*1"];
+    if(swap)base[0]="（待交換）"+base[0];
+    const lines=base.flatMap(t=>wrapTxt(mc,t,CW[3]-PAD*2)),imgs=(i.images||[]).map(x=>imgMap[x]);
+    const ir=Math.max(1,Math.ceil(imgs.length/2)),imgH=ir*TH+(ir-1)*GAP+PAD*2,h=Math.max(imgH,lines.length*LH+PAD*2,100);return{i,lines,imgs,h}});
+    return{booth:k,rows,h:rows.reduce((a,r)=>a+r.h,0),total:sumList(rows.map(r=>r.i))}});
+  const H=TITLE+HEAD+groups.reduce((a,g)=>a+g.h,0)+24,sc=Math.min(2,Math.sqrt(16000000/(W*H)));
+  const cv=document.createElement("canvas");cv.width=Math.round(W*sc);cv.height=Math.round(H*sc);const c=cv.getContext("2d");c.scale(sc,sc);
+  c.fillStyle="#fff";c.fillRect(0,0,W,H);c.textBaseline="middle";
+  c.fillStyle="#222";c.font="bold 30px "+FF;c.textAlign="left";c.fillText(EV+"　待購買／待交換清單",20,TITLE/2);
+  c.font="20px "+FF;c.fillStyle="#888";c.textAlign="right";c.fillText(todayStr(),W-20,TITLE/2+2);
+  const X=[0];CW.forEach((w,k)=>X.push(X[k]+w));
+  c.fillStyle="#eceef2";c.fillRect(0,TITLE,W,HEAD);c.fillStyle="#222";c.font="bold 22px "+FF;c.textAlign="center";
+  ["確認","攤位號碼","商品圖片","待購買商品數量與金額","總金額"].forEach((t,k)=>c.fillText(t,X[k]+CW[k]/2,TITLE+HEAD/2));
+  let y=TITLE+HEAD;const line=(x1,y1,x2,y2)=>{c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke()};
+  c.strokeStyle="#6e6e75";c.lineWidth=1.5;
+  groups.forEach(g=>{const gy=y;
+   g.rows.forEach((r,ri)=>{
+    // images
+    if(!r.imgs.length){c.fillStyle="#aaa";c.font="20px "+FF;c.textAlign="center";c.fillText("無圖",X[2]+CW[2]/2,y+r.h/2)}
+    r.imgs.forEach((im,k)=>{const col=k%2,row=Math.floor(k/2),ix=X[2]+PAD+col*(TH+GAP),iy=y+PAD+row*(TH+GAP);if(im)drawCover(c,im,ix,iy,TH);else{c.fillStyle="#eee";c.fillRect(ix,iy,TH,TH);c.fillStyle="#aaa";c.font="18px "+FF;c.textAlign="center";c.fillText("圖片失敗",ix+TH/2,iy+TH/2)}});
+    // text
+    c.fillStyle="#222";c.font="22px "+FF;c.textAlign="left";const th=r.lines.length*LH,ty=y+(r.h-th)/2+LH/2;r.lines.forEach((t,k)=>c.fillText(t,X[3]+PAD,ty+k*LH));
+    y+=r.h;if(ri<g.rows.length-1)line(X[2],y,X[4],y)});
+   const gh=y-gy,cy=gy+gh/2;
+   c.strokeRect(X[0]+35,cy-15,30,30);
+   c.fillStyle="#222";c.textAlign="center";c.font="bold 28px "+FF;c.fillText(g.booth||"—",X[1]+CW[1]/2,cy);
+   c.font="bold 24px "+FF;const tl=wrapTxt(c,g.total,CW[4]-24);tl.forEach((t,k)=>c.fillText(t,X[4]+CW[4]/2,cy+(k-(tl.length-1)/2)*30));
+   line(0,y,W,y)});
+  line(0,TITLE,W,TITLE);line(0,TITLE+HEAD,W,TITLE+HEAD);X.forEach(x=>line(x,TITLE,x,y));line(0,TITLE,0,y);line(W,TITLE,W,y);
+  c.fillStyle="#aaa";c.font="16px "+FF;c.textAlign="right";c.fillText("共 "+its.length+" 件",W-12,y+14);
+  const blob=await new Promise(r=>cv.toBlob(r,"image/jpeg",.92));if(!blob)throw new Error("轉檔失敗");
+  const fn=EV+"-待購買清單-"+todayStr()+".jpg",file=new File([blob],fn,{type:"image/jpeg"});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:fn});toast("已產生圖片");return}catch(e){if(e&&e.name==="AbortError")return}}
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast("已產生圖片")
+ }catch(e){toast("輸出失敗："+(e.message||e))}}
 init();
 </script></body></html>
