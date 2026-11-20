@@ -255,6 +255,7 @@ function ed(){const c=cur;LK=keys(c);
 ${c.ev?`<label class="l">攤位</label><div class="cd"><input placeholder="例如 A12（依第一個字母分組）" value="${esc(c.booth||"")}" oninput="cur.booth=this.value"></div>`:""}<label class="l">名稱</label><div class="cd"><input value="${esc(c.name)}" oninput="cur.name=this.value"></div>
 <label class="l">連結</label><div class="cd">${c.links.map((l,k)=>`<div class="${k?"row":""}"><div class="mr"><input placeholder="連結名稱（可自訂）" value="${esc(l.n)}" oninput="lkN(${k},this.value)"><button class="ib" onclick="lkDel(${k})">${TR}</button></div><div class="mr"><input type="url" placeholder="https://" value="${esc(l.u)}" oninput="lk(${k},this.value)"><a id="lk${k}" class="gl" target="_blank" rel="noopener" href="${esc(l.u?hrefOf(l.u):"#")}" style="display:${l.u?"flex":"none"}">${ico(l.u)}</a></div></div>`).join("")}<div class="${c.links.length?"row ":""}chips" style="padding:10px 4px"><span class="c" onclick="lkAdd('')">＋ 新增連結</span></div></div>
 <label class="l">照片（可多張，也可直接貼上）</label><div class="cd"><div class="th">${c.images.map((x,k)=>`<div><img src="${url(x)}" onclick="big(${k})"><i onclick="c_rm(${k})">×</i></div>`).join("")}<label class="add">＋ 選圖<input type="file" accept="image/*" multiple hidden onchange="addFiles(this.files)"></label></div><div id="pz" class="pz" contenteditable="true" data-ph="點這裡 → 再點一次選「貼上」" oninput="pzIn(this)"></div></div>
+${c.ev?`<label class="l">優先順序</label><div class="cd"><input inputmode="numeric" placeholder="例如 1、2、3（會顯示在輸出圖片最左邊）" value="${esc(c.priority??"")}" oninput="cur.priority=this.value"></div>`:""}
 ${c.ev?"":`<label class="l">狀態<a class="mgl" onclick="mgOpen('s')">${PEN}</a></label><div class="cd chips">${STATUS.map((s,k)=>`<span class="c ${c.status===s?"on":""}" onclick="cur.status=STATUS[${k}];ed()">${esc(s)}</span>`).join("")}<span class="c" onclick="$('#ns').style.display='flex';$('#nsi').focus()">＋ 自訂</span><div id="ns" class="mr" style="display:none;width:100%"><input id="nsi" placeholder="新狀態名稱"><button class="p" onclick="nsAdd()">新增</button></div></div>`}
 ${c.ev?"":`<label class="l">開團者<a class="mgl" onclick="mgOpen('h')">${PEN}</a></label><div class="cd chips">${hostL().map((h,k)=>`<span class="c ${c.host===h?"on":""}" onclick="pickHost(${k})">${esc(h)}</span>`).join("")}<span class="c" onclick="$('#nh').style.display='flex';$('#nhi').focus()">＋ 自訂</span><div id="nh" class="mr" style="display:none;width:100%"><input id="nhi" placeholder="新開團者"><button class="p" onclick="nhAdd()">新增</button></div></div>`}
 ${c.ev?`<label class="l">狀態（可複選）<a class="mgl" onclick="mgOpen('v')">${PEN}</a></label><div class="cd chips">${eventStatuses().map((x,k)=>`<span class="c ${eStats(c).includes(x)?"on":""}" onclick="tgEs(${k})">${esc(x)}</span>`).join("")}<span class="c" onclick="$('#nvs').style.display='flex';$('#nvsi').focus()">＋ 自訂</span><div id="nvs" class="mr" style="display:none;width:100%"><input id="nvsi" placeholder="新狀態名稱"><button class="p" onclick="nvAdd()">新增</button></div></div>`:""}
@@ -594,7 +595,7 @@ async function exportPendingImage(includeFriendSwap=true){
  if(!its.length)return toast("沒有符合輸出條件的商品");
  toast("製作圖片中…");
  try{
-  const FF='"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif',CW=[100,170,320,380,180,250],W=CW.reduce((a,b)=>a+b,0),PAD=14,TH=140,GAP=12,LH=32,TITLE=84,HEAD=56;
+  const FF='"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif',CW=[110,100,170,320,380,180,250],W=CW.reduce((a,b)=>a+b,0),PAD=14,TH=140,GAP=12,LH=32,TITLE=84,HEAD=56;
   const bk=i=>(i.booth||"").trim();
   const keys=[...new Set(its.map(bk))].sort((a,b)=>(a===""?1:0)-(b===""?1:0)||a.localeCompare(b,undefined,{numeric:true}));
   const imgMap={};await Promise.all(its.flatMap(i=>(i.images||[]).map(async x=>{imgMap[x]=await loadImg(url(x))})));
@@ -602,7 +603,7 @@ async function exportPendingImage(includeFriendSwap=true){
   const groups=keys.map(k=>{const rows=its.filter(i=>bk(i)===k).map(i=>{const cu=i.cur||CURS[0].k,swap=includeFriendSwap&&eStats(i).includes("待交換")&&i.swapHelp==="friend";
     const ls=LN(i).filter(l=>l.n||l.price);const base=ls.length?ls.map(l=>(l.n||i.name||"（未命名）")+"*"+qn(l)+(num(l.price)?" "+fmt(cu,num(l.price)*qn(l)):"")):[(i.name||"（未命名）")+"*1"];
     if(swap && i.swapHelp==="friend")base.push("* 待交換");
-    const lines=base.flatMap(t=>wrapTxt(mc,t,CW[3]-PAD*2)),notes=wrapTxt(mc,i.note||"",CW[5]-PAD*2),imgs=(i.images||[]).map(x=>imgMap[x]);
+    const lines=base.flatMap(t=>wrapTxt(mc,t,CW[4]-PAD*2)),notes=wrapTxt(mc,i.note||"",CW[6]-PAD*2),imgs=(i.images||[]).map(x=>imgMap[x]);
     const ir=Math.max(1,Math.ceil(imgs.length/2)),imgH=ir*TH+(ir-1)*GAP+PAD*2,h=Math.max(imgH,lines.length*LH+PAD*2,notes.length*LH+PAD*2,100);return{i,lines,notes,imgs,h}});
     return{booth:k,rows,h:rows.reduce((a,r)=>a+r.h,0),total:sumList(rows.map(r=>r.i))}});
   const FOOT=76,H=TITLE+HEAD+groups.reduce((a,g)=>a+g.h,0)+FOOT,sc=Math.min(2,Math.sqrt(16000000/(W*H)));
@@ -612,22 +613,23 @@ async function exportPendingImage(includeFriendSwap=true){
   c.font="20px "+FF;c.fillStyle="#888";c.textAlign="right";c.fillText(todayStr(),W-20,TITLE/2+2);
   const X=[0];CW.forEach((w,k)=>X.push(X[k]+w));
   c.fillStyle="#eceef2";c.fillRect(0,TITLE,W,HEAD);c.fillStyle="#222";c.font="bold 22px "+FF;c.textAlign="center";
-  ["確認","攤位號碼","商品圖片","待購買商品數量與金額","總金額","備註"].forEach((t,k)=>c.fillText(t,X[k]+CW[k]/2,TITLE+HEAD/2));
+  ["優先順序","確認","攤位號碼","商品圖片","待購買商品數量與金額","總金額","備註"].forEach((t,k)=>c.fillText(t,X[k]+CW[k]/2,TITLE+HEAD/2));
   let y=TITLE+HEAD;const line=(x1,y1,x2,y2)=>{c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke()};
   c.strokeStyle="#6e6e75";c.lineWidth=1.5;
   groups.forEach(g=>{const gy=y;
    g.rows.forEach((r,ri)=>{
     // images
-    if(!r.imgs.length){c.fillStyle="#aaa";c.font="20px "+FF;c.textAlign="center";c.fillText("無圖",X[2]+CW[2]/2,y+r.h/2)}
-    r.imgs.forEach((im,k)=>{const col=k%2,row=Math.floor(k/2),ix=X[2]+PAD+col*(TH+GAP),iy=y+PAD+row*(TH+GAP);if(im)drawCover(c,im,ix,iy,TH);else{c.fillStyle="#eee";c.fillRect(ix,iy,TH,TH);c.fillStyle="#aaa";c.font="18px "+FF;c.textAlign="center";c.fillText("圖片失敗",ix+TH/2,iy+TH/2)}});
+    if(!r.imgs.length){c.fillStyle="#aaa";c.font="20px "+FF;c.textAlign="center";c.fillText("無圖",X[3]+CW[3]/2,y+r.h/2)}
+    r.imgs.forEach((im,k)=>{const col=k%2,row=Math.floor(k/2),ix=X[3]+PAD+col*(TH+GAP),iy=y+PAD+row*(TH+GAP);if(im)drawCover(c,im,ix,iy,TH);else{c.fillStyle="#eee";c.fillRect(ix,iy,TH,TH);c.fillStyle="#aaa";c.font="18px "+FF;c.textAlign="center";c.fillText("圖片失敗",ix+TH/2,iy+TH/2)}});
     // text
-    c.fillStyle="#222";c.font="22px "+FF;c.textAlign="left";const th=r.lines.length*LH,ty=y+(r.h-th)/2+LH/2;r.lines.forEach((t,k)=>c.fillText(t,X[3]+PAD,ty+k*LH));
-    const nt=r.notes.length*LH,ny=y+(r.h-nt)/2+LH/2;c.font="20px "+FF;r.notes.forEach((t,k)=>c.fillText(t,X[5]+PAD,ny+k*LH));
-    y+=r.h;if(ri<g.rows.length-1)line(X[2],y,X[4],y);line(X[5],y,X[6],y)});
+    c.fillStyle="#222";c.font="22px "+FF;c.textAlign="left";const th=r.lines.length*LH,ty=y+(r.h-th)/2+LH/2;r.lines.forEach((t,k)=>c.fillText(t,X[4]+PAD,ty+k*LH));
+    const nt=r.notes.length*LH,ny=y+(r.h-nt)/2+LH/2;c.font="20px "+FF;r.notes.forEach((t,k)=>c.fillText(t,X[6]+PAD,ny+k*LH));
+    const pv=String(r.i.priority??"").trim();if(pv){c.fillStyle="#222";c.font="bold 26px "+FF;c.textAlign="center";const pl=wrapTxt(c,pv,CW[0]-16);pl.forEach((t,k)=>c.fillText(t,X[0]+CW[0]/2,y+r.h/2+(k-(pl.length-1)/2)*30))}
+    y+=r.h;if(ri<g.rows.length-1){line(X[0],y,X[1],y);line(X[3],y,X[5],y)}line(X[6],y,X[7],y)});
    const gh=y-gy,cy=gy+gh/2;
-   c.strokeRect(X[0]+35,cy-15,30,30);
-   c.fillStyle="#222";c.textAlign="center";c.font="bold 28px "+FF;c.fillText(g.booth||"—",X[1]+CW[1]/2,cy);
-   c.font="bold 24px "+FF;const tl=wrapTxt(c,g.total,CW[4]-24);tl.forEach((t,k)=>c.fillText(t,X[4]+CW[4]/2,cy+(k-(tl.length-1)/2)*30));
+   c.strokeRect(X[1]+(CW[1]-30)/2,cy-15,30,30);
+   c.fillStyle="#222";c.textAlign="center";c.font="bold 28px "+FF;c.fillText(g.booth||"—",X[2]+CW[2]/2,cy);
+   c.font="bold 24px "+FF;const tl=wrapTxt(c,g.total,CW[5]-24);tl.forEach((t,k)=>c.fillText(t,X[5]+CW[5]/2,cy+(k-(tl.length-1)/2)*30));
    line(0,y,W,y)});
   line(0,TITLE,W,TITLE);line(0,TITLE+HEAD,W,TITLE+HEAD);X.forEach(x=>line(x,TITLE,x,y));line(0,TITLE,0,y);line(W,TITLE,W,y);
   // 表格下方彙總：僅計入本次輸出的商品，依幣別分別加總。
